@@ -9,155 +9,110 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      inventory_data_no_services: {
+        Row: {
+          active_stock_unassigned: number | null
+          avg_lead_time_days: number | null
+          category_name: string | null
+          country_of_origin: string | null
+          created_at: string | null
+          days_of_supply_current: number | null
+          frequency_of_use: number | null
+          id: number
+          reorder_point_stock_level: number | null
+          safety_stock: number | null
+          std_dev_lead_time_days: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active_stock_unassigned?: number | null
+          avg_lead_time_days?: number | null
+          category_name?: string | null
+          country_of_origin?: string | null
+          created_at?: string | null
+          days_of_supply_current?: number | null
+          frequency_of_use?: number | null
+          id?: number
+          reorder_point_stock_level?: number | null
+          safety_stock?: number | null
+          std_dev_lead_time_days?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active_stock_unassigned?: number | null
+          avg_lead_time_days?: number | null
+          category_name?: string | null
+          country_of_origin?: string | null
+          created_at?: string | null
+          days_of_supply_current?: number | null
+          frequency_of_use?: number | null
+          id?: number
+          reorder_point_stock_level?: number | null
+          safety_stock?: number | null
+          std_dev_lead_time_days?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       vendor_risk_inventory: {
         Row: {
           active_stock_unassigned: number | null
-          active_stock_unassigned_y: number | null
           annual_spend: number | null
-          ariba_supplier_group: string | null
-          authorization_group_name: string | null
-          auto_po_category: string | null
-          auto_po_type: string | null
-          avg_lead_time_days: number | null
-          avg_lead_time_days_x: number | null
+          average_lead_time_days: number | null
           category: string | null
-          category_name_x: string | null
-          clean_oa_number: string | null
-          clean_oa_number_y: string | null
-          clean_parent_oa_number2_x: string | null
-          clean_parent_oa_number2_y: string | null
           country_of_origin: string | null
-          country_of_origin_x: string | null
+          created_at: string | null
           days_of_supply_current: number | null
-          days_of_supply_current_y: number | null
-          end_date_clean_x: number | null
-          end_date_clean_y: number | null
           frequency_of_use: number | null
-          frequency_of_use_y: number | null
-          fuzzy_matched_category: string | null
           id: number
-          material_group_x: string | null
-          material_group_y: string | null
-          max_auto_po_value_ex: string | null
           portfolio: string | null
-          purchasing_group_number: number | null
-          purchasing_group_number_y: number | null
-          reference_number_x: number | null
-          reference_number_y: number | null
           reorder_point_stock_level: number | null
-          reorder_point_stock_level_y: number | null
-          restricted_us_vendor_x: string | null
-          restricted_us_vendor_y: string | null
-          risk_data_category: string | null
-          risk_tolerance_x: string | null
+          restricted_us_vendor: string | null
+          risk_tolerance_category: string | null
           safety_stock: number | null
-          safety_stock_y: number | null
-          start_date_clean_x: number | null
-          start_date_clean_y: number | null
           std_dev_lead_time_days: number | null
-          std_dev_lead_time_days_x: number | null
-          vendor_name: string | null
-          vendor_number_clean: string | null
+          updated_at: string | null
+          vendor_number: number | null
           vendor_performance: string | null
         }
         Insert: {
           active_stock_unassigned?: number | null
-          active_stock_unassigned_y?: number | null
           annual_spend?: number | null
-          ariba_supplier_group?: string | null
-          authorization_group_name?: string | null
-          auto_po_category?: string | null
-          auto_po_type?: string | null
-          avg_lead_time_days?: number | null
-          avg_lead_time_days_x?: number | null
+          average_lead_time_days?: number | null
           category?: string | null
-          category_name_x?: string | null
-          clean_oa_number?: string | null
-          clean_oa_number_y?: string | null
-          clean_parent_oa_number2_x?: string | null
-          clean_parent_oa_number2_y?: string | null
           country_of_origin?: string | null
-          country_of_origin_x?: string | null
+          created_at?: string | null
           days_of_supply_current?: number | null
-          days_of_supply_current_y?: number | null
-          end_date_clean_x?: number | null
-          end_date_clean_y?: number | null
           frequency_of_use?: number | null
-          frequency_of_use_y?: number | null
-          fuzzy_matched_category?: string | null
           id?: number
-          material_group_x?: string | null
-          material_group_y?: string | null
-          max_auto_po_value_ex?: string | null
           portfolio?: string | null
-          purchasing_group_number?: number | null
-          purchasing_group_number_y?: number | null
-          reference_number_x?: number | null
-          reference_number_y?: number | null
           reorder_point_stock_level?: number | null
-          reorder_point_stock_level_y?: number | null
-          restricted_us_vendor_x?: string | null
-          restricted_us_vendor_y?: string | null
-          risk_data_category?: string | null
-          risk_tolerance_x?: string | null
+          restricted_us_vendor?: string | null
+          risk_tolerance_category?: string | null
           safety_stock?: number | null
-          safety_stock_y?: number | null
-          start_date_clean_x?: number | null
-          start_date_clean_y?: number | null
           std_dev_lead_time_days?: number | null
-          std_dev_lead_time_days_x?: number | null
-          vendor_name?: string | null
-          vendor_number_clean?: string | null
+          updated_at?: string | null
+          vendor_number?: number | null
           vendor_performance?: string | null
         }
         Update: {
           active_stock_unassigned?: number | null
-          active_stock_unassigned_y?: number | null
           annual_spend?: number | null
-          ariba_supplier_group?: string | null
-          authorization_group_name?: string | null
-          auto_po_category?: string | null
-          auto_po_type?: string | null
-          avg_lead_time_days?: number | null
-          avg_lead_time_days_x?: number | null
+          average_lead_time_days?: number | null
           category?: string | null
-          category_name_x?: string | null
-          clean_oa_number?: string | null
-          clean_oa_number_y?: string | null
-          clean_parent_oa_number2_x?: string | null
-          clean_parent_oa_number2_y?: string | null
           country_of_origin?: string | null
-          country_of_origin_x?: string | null
+          created_at?: string | null
           days_of_supply_current?: number | null
-          days_of_supply_current_y?: number | null
-          end_date_clean_x?: number | null
-          end_date_clean_y?: number | null
           frequency_of_use?: number | null
-          frequency_of_use_y?: number | null
-          fuzzy_matched_category?: string | null
           id?: number
-          material_group_x?: string | null
-          material_group_y?: string | null
-          max_auto_po_value_ex?: string | null
           portfolio?: string | null
-          purchasing_group_number?: number | null
-          purchasing_group_number_y?: number | null
-          reference_number_x?: number | null
-          reference_number_y?: number | null
           reorder_point_stock_level?: number | null
-          reorder_point_stock_level_y?: number | null
-          restricted_us_vendor_x?: string | null
-          restricted_us_vendor_y?: string | null
-          risk_data_category?: string | null
-          risk_tolerance_x?: string | null
+          restricted_us_vendor?: string | null
+          risk_tolerance_category?: string | null
           safety_stock?: number | null
-          safety_stock_y?: number | null
-          start_date_clean_x?: number | null
-          start_date_clean_y?: number | null
           std_dev_lead_time_days?: number | null
-          std_dev_lead_time_days_x?: number | null
-          vendor_name?: string | null
-          vendor_number_clean?: string | null
+          updated_at?: string | null
+          vendor_number?: number | null
           vendor_performance?: string | null
         }
         Relationships: []
@@ -178,7 +133,86 @@ export type Database = {
   }
 }
 
-// Helper types for easier usage
-export type VendorRiskInventory = Database['public']['Tables']['vendor_risk_inventory']['Row']
-export type VendorRiskInventoryInsert = Database['public']['Tables']['vendor_risk_inventory']['Insert']
-export type VendorRiskInventoryUpdate = Database['public']['Tables']['vendor_risk_inventory']['Update'] 
+type DefaultSchema = Database[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+// Convenience type aliases
+export type InventoryDataNoServices = Tables<'inventory_data_no_services'>
+export type InventoryDataNoServicesInsert = TablesInsert<'inventory_data_no_services'>
+export type InventoryDataNoServicesUpdate = TablesUpdate<'inventory_data_no_services'>
+
+export type VendorRiskInventory = Tables<'vendor_risk_inventory'>
+export type VendorRiskInventoryInsert = TablesInsert<'vendor_risk_inventory'>
+export type VendorRiskInventoryUpdate = TablesUpdate<'vendor_risk_inventory'> 

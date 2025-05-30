@@ -98,8 +98,8 @@ export const useVendorRiskInventory = () => {
     }
   };
 
-  // Search records by vendor name
-  const searchByVendor = async (vendorName: string) => {
+  // Search records by category
+  const searchByCategory = async (categoryName: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -107,7 +107,7 @@ export const useVendorRiskInventory = () => {
       const { data: searchResults, error: searchError } = await supabase
         .from('vendor_risk_inventory')
         .select('*')
-        .ilike('vendor_name', `%${vendorName}%`)
+        .ilike('category', `%${categoryName}%`)
         .order('id', { ascending: true });
 
       if (searchError) {
@@ -122,8 +122,8 @@ export const useVendorRiskInventory = () => {
     }
   };
 
-  // Filter records by risk tolerance
-  const filterByRiskTolerance = async (riskTolerance: string) => {
+  // Filter records by country of origin
+  const filterByCountry = async (country: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -131,7 +131,7 @@ export const useVendorRiskInventory = () => {
       const { data: filteredResults, error: filterError } = await supabase
         .from('vendor_risk_inventory')
         .select('*')
-        .eq('risk_tolerance_x', riskTolerance)
+        .eq('country_of_origin', country)
         .order('id', { ascending: true });
 
       if (filterError) {
@@ -158,7 +158,7 @@ export const useVendorRiskInventory = () => {
     insertRecord,
     updateRecord,
     deleteRecord,
-    searchByVendor,
-    filterByRiskTolerance,
+    searchByCategory,
+    filterByCountry,
   };
 }; 

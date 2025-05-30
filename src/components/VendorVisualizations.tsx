@@ -7,36 +7,20 @@ export const VendorVisualizations: React.FC = () => {
   const { data } = useVendorRiskInventory();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Filter for equipment vendors only
-  const excludeKeywords = [
-    'services', 'service', 'consulting', 'management', 'construction equipment',
-    'engineering design', 'engineering specialty', 'technical & specialized',
-    'corporate', 'environment', 'field waste', 'marketing', 'legal', 'training',
-    'contingent labour', 'resource augmentation', 'properties', 'facilities',
-    'communication', 'protection & control', 'security & safety', 'installation',
-    'maintenance', 'general construction', 'line services', 'civil underground',
-    'vegetation', 'traffic', 'site safety'
-  ];
+  // Get unique vendors by vendor_number to avoid duplicates
+  const uniqueVendors = data.reduce((acc, vendor) => {
+    if (vendor.vendor_number && !acc.find(v => v.vendor_number === vendor.vendor_number)) {
+      acc.push(vendor);
+    }
+    return acc;
+  }, [] as typeof data);
 
-  const equipmentData = data.filter(vendor => {
-    const category = vendor.fuzzy_matched_category?.toLowerCase() || '';
-    const isService = excludeKeywords.some(keyword => category.includes(keyword));
-    if (isService) return false;
-    
-    const isEquipment = category.includes('equipment') || category.includes('transformer') ||
-                       category.includes('electrical') || category.includes('generator') ||
-                       category.includes('switchgear') || category.includes('wire') ||
-                       category.includes('cable') || category.includes('fleet') ||
-                       category.includes('vehicle') || category.includes('turbine') ||
-                       category.includes('crane') || category.includes('auxiliary');
-    
-    return isEquipment;
-  });
+  console.log(`Total records: ${data.length}, Unique vendors: ${uniqueVendors.length}`);
 
-  // Slide 1: Lead Time Risk by Equipment Category (Bar Chart)
-  const leadTimeAnalysis = equipmentData.reduce((acc, vendor) => {
-    const category = vendor.fuzzy_matched_category || 'Other';
-    const leadTime = vendor.avg_lead_time_days_x || vendor.avg_lead_time_days || 0;
+  // Slide 1: Lead Time Risk by Category (Bar Chart)
+  const leadTimeAnalysis = uniqueVendors.reduce((acc, vendor) => {
+    const category = vendor.category || 'Other';
+    const leadTime = vendor.average_lead_time_days || 0;
     
     if (!acc[category]) {
       acc[category] = { totalLeadTime: 0, count: 0, vendors: [] };
@@ -57,11 +41,20 @@ export const VendorVisualizations: React.FC = () => {
                  (data.totalLeadTime / data.count) > 15 ? 'Medium' : 'Low'
     }))
     .sort((a, b) => b.avgLeadTime - a.avgLeadTime)
-    .slice(0, 10);
+    .slice(0, 15);
 
   // Slide 2: Risk Distribution (Pie Chart)
-  const riskDistribution = equipmentData.reduce((acc, vendor) => {
-    const risk = vendor.risk_tolerance_x || 'Unknown';
+  const riskDistribution = uniqueVendors.reduce((acc, vendor) => {
+    let risk = vendor.risk_tolerance_category || 'Unknown';
+    
+    // If no risk category, calculate from lead time
+    if (risk === 'Unknown' || !risk) {
+      const leadTime = vendor.average_lead_time_days || 0;
+      if (leadTime > 30) risk = 'High';
+      else if (leadTime > 15) risk = 'Medium';
+      else risk = 'Low';
+    }
+    
     acc[risk] = (acc[risk] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -69,19 +62,20 @@ export const VendorVisualizations: React.FC = () => {
   const riskChartData = Object.entries(riskDistribution).map(([risk, count]) => ({
     name: risk,
     value: count,
-    percentage: ((count / equipmentData.length) * 100).toFixed(1)
+    percentage: ((count / uniqueVendors.length) * 100).toFixed(1)
   }));
 
   // Slide 3: Geographic Distribution (Bar Chart)
-  const geographicData = equipmentData.reduce((acc, vendor) => {
-    const country = vendor.country_of_origin_x || vendor.country_of_origin || 'Unknown';
-    const leadTime = vendor.avg_lead_time_days_x || vendor.avg_lead_time_days || 0;
+  const geographicData = uniqueVendors.reduce((acc, vendor) => {
+    const country = vendor.country_of_origin || 'Unknown';
+    const leadTime = vendor.average_lead_time_days || 0;
     
     if (!acc[country]) {
-      acc[country] = { count: 0, totalLeadTime: 0, highRiskVendors: 0 };
+      acc[country] = { count: 0, totalLeadTime: 0, highRiskVendors: 0, totalSpend: 0 };
     }
     acc[country].count += 1;
     acc[country].totalLeadTime += Number(leadTime);
+    acc[country].totalSpend += Number(vendor.annual_spend || 0);
     if (Number(leadTime) > 30) acc[country].highRiskVendors += 1;
     return acc;
   }, {} as Record<string, any>);
@@ -91,41 +85,67 @@ export const VendorVisualizations: React.FC = () => {
       country,
       vendorCount: data.count,
       avgLeadTime: Number((data.totalLeadTime / data.count).toFixed(1)),
-      highRiskVendors: data.highRiskVendors
+      highRiskVendors: data.highRiskVendors,
+      totalSpend: data.totalSpend
     }))
     .sort((a, b) => b.vendorCount - a.vendorCount)
-    .slice(0, 8);
+    .slice(0, 10);
 
-  // Slide 4: Inventory Risk Scatter Plot
-  const inventoryRiskData = equipmentData
-    .filter(vendor => {
-      const daysOfSupply = vendor.days_of_supply_current || vendor.days_of_supply_current_y || 0;
-      const leadTime = vendor.avg_lead_time_days_x || vendor.avg_lead_time_days || 0;
-      return Number(daysOfSupply) > 0 && Number(leadTime) > 0;
-    })
-    .map(vendor => {
-      const daysOfSupply = Number(vendor.days_of_supply_current || vendor.days_of_supply_current_y || 0);
-      const leadTime = Number(vendor.avg_lead_time_days_x || vendor.avg_lead_time_days || 0);
-      const frequency = Number(vendor.frequency_of_use || vendor.frequency_of_use_y || 0);
+  // Slide 4: Portfolio Performance Matrix
+  const portfolioData = uniqueVendors
+    .filter(vendor => vendor.portfolio && vendor.annual_spend)
+    .reduce((acc, vendor) => {
+      const portfolio = vendor.portfolio || 'Unknown';
+      const spend = Number(vendor.annual_spend || 0);
+      const leadTime = Number(vendor.average_lead_time_days || 0);
       
-      let riskLevel = 'Low';
-      if (daysOfSupply < leadTime && frequency > 5) riskLevel = 'Critical';
-      else if (daysOfSupply < leadTime * 1.5) riskLevel = 'High';
-      else if (daysOfSupply < leadTime * 2) riskLevel = 'Medium';
+      if (!acc[portfolio]) {
+        acc[portfolio] = {
+          portfolio,
+          totalSpend: 0,
+          avgLeadTime: 0,
+          vendorCount: 0,
+          performances: []
+        };
+      }
       
-      return {
-        vendor: vendor.vendor_name || 'Unknown',
-        category: vendor.fuzzy_matched_category || 'Unknown',
-        daysOfSupply,
-        leadTime,
-        frequency,
-        riskLevel,
-        x: leadTime,
-        y: daysOfSupply,
-        z: frequency
-      };
-    })
-    .slice(0, 50);
+      acc[portfolio].totalSpend += spend;
+      acc[portfolio].avgLeadTime += leadTime;
+      acc[portfolio].vendorCount += 1;
+      if (vendor.vendor_performance) {
+        acc[portfolio].performances.push(vendor.vendor_performance);
+      }
+      
+      return acc;
+    }, {} as Record<string, any>);
+
+  const portfolioChartData = Object.values(portfolioData)
+    .map((portfolio: any) => ({
+      portfolio: portfolio.portfolio,
+      avgSpend: portfolio.totalSpend / portfolio.vendorCount,
+      avgLeadTime: portfolio.avgLeadTime / portfolio.vendorCount,
+      vendorCount: portfolio.vendorCount,
+      x: portfolio.avgLeadTime / portfolio.vendorCount,
+      y: portfolio.totalSpend / portfolio.vendorCount / 1000, // Convert to thousands
+      riskLevel: (portfolio.avgLeadTime / portfolio.vendorCount) > 30 ? 'High' : 
+                 (portfolio.avgLeadTime / portfolio.vendorCount) > 15 ? 'Medium' : 'Low'
+    }))
+    .filter(p => p.vendorCount > 0)
+    .slice(0, 20);
+
+  // Slide 5: Annual Spend by Country (Bar Chart)
+  const spendByCountryData = Object.entries(geographicData)
+    .map(([country, data]) => ({
+      country: country.length > 15 ? country.substring(0, 15) + '...' : country,
+      fullCountry: country,
+      totalSpend: data.totalSpend,
+      vendorCount: data.count,
+      avgSpendPerVendor: data.totalSpend / data.count,
+      spendInMillions: data.totalSpend / 1000000
+    }))
+    .filter(item => item.totalSpend > 0) // Only show countries with spend data
+    .sort((a, b) => b.totalSpend - a.totalSpend)
+    .slice(0, 12);
 
   // Chart colors
   const RISK_COLORS = {
@@ -142,10 +162,18 @@ export const VendorVisualizations: React.FC = () => {
     return isNaN(num) ? 'N/A' : num.toFixed(1);
   };
 
+  const formatCurrency = (num: number) => {
+    return isNaN(num) ? 'N/A' : `$${(num / 1000).toFixed(0)}K`;
+  };
+
+  const formatCurrencyMillions = (num: number) => {
+    return isNaN(num) ? 'N/A' : `$${(num / 1000000).toFixed(1)}M`;
+  };
+
   const slides = [
     {
-      title: "Equipment Lead Time Risk Analysis",
-      subtitle: "Average Lead Times by Equipment Category",
+      title: "Vendor Lead Time Risk Analysis",
+      subtitle: "Average Lead Times by Vendor Category",
       chart: (
         <ResponsiveContainer width="100%" height={500}>
           <BarChart data={leadTimeChartData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
@@ -183,15 +211,15 @@ export const VendorVisualizations: React.FC = () => {
       ),
       tableData: leadTimeChartData,
       tableColumns: [
-        { key: 'fullCategory', label: 'Equipment Category' },
+        { key: 'fullCategory', label: 'Vendor Category' },
         { key: 'avgLeadTime', label: 'Avg Lead Time (Days)' },
         { key: 'vendorCount', label: 'Vendor Count' },
         { key: 'riskLevel', label: 'Risk Level' }
       ]
     },
     {
-      title: "Equipment Vendor Risk Distribution",
-      subtitle: "Risk Level Distribution Across Equipment Vendors",
+      title: "Vendor Risk Distribution",
+      subtitle: "Risk Level Distribution Based on Lead Time and Categories",
       chart: (
         <ResponsiveContainer width="100%" height={500}>
           <PieChart>
@@ -222,8 +250,8 @@ export const VendorVisualizations: React.FC = () => {
       ]
     },
     {
-      title: "Geographic Equipment Vendor Distribution",
-      subtitle: "Equipment Vendors by Country of Origin",
+      title: "Geographic Vendor Distribution",
+      subtitle: "Vendors by Country with Risk and Spend Analysis",
       chart: (
         <ResponsiveContainer width="100%" height={500}>
           <BarChart data={geographicChartData} margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
@@ -239,7 +267,7 @@ export const VendorVisualizations: React.FC = () => {
             <YAxis label={{ value: 'Number of Vendors', angle: -90, position: 'insideLeft' }} />
             <Tooltip />
             <Legend />
-            <Bar dataKey="vendorCount" name="Equipment Vendors" fill="#3B82F6" />
+            <Bar dataKey="vendorCount" name="Total Vendors" fill="#3B82F6" />
             <Bar dataKey="highRiskVendors" name="High Risk Vendors" fill="#EF4444" />
           </BarChart>
         </ResponsiveContainer>
@@ -249,12 +277,13 @@ export const VendorVisualizations: React.FC = () => {
         { key: 'country', label: 'Country' },
         { key: 'vendorCount', label: 'Total Vendors' },
         { key: 'avgLeadTime', label: 'Avg Lead Time (Days)' },
-        { key: 'highRiskVendors', label: 'High Risk Vendors' }
+        { key: 'highRiskVendors', label: 'High Risk Vendors' },
+        { key: 'totalSpend', label: 'Total Annual Spend' }
       ]
     },
     {
-      title: "Equipment Inventory Risk Matrix",
-      subtitle: "Lead Time vs. Days of Supply Analysis",
+      title: "Portfolio Performance Analysis",
+      subtitle: "Portfolio Lead Time vs. Average Annual Spend",
       chart: (
         <ResponsiveContainer width="100%" height={500}>
           <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 40 }}>
@@ -264,14 +293,14 @@ export const VendorVisualizations: React.FC = () => {
               dataKey="x" 
               name="Lead Time" 
               unit=" days"
-              label={{ value: 'Lead Time (Days)', position: 'insideBottom', offset: -10 }}
+              label={{ value: 'Average Lead Time (Days)', position: 'insideBottom', offset: -10 }}
             />
             <YAxis 
               type="number" 
               dataKey="y" 
-              name="Days of Supply" 
-              unit=" days"
-              label={{ value: 'Days of Supply', angle: -90, position: 'insideLeft' }}
+              name="Annual Spend" 
+              unit="K"
+              label={{ value: 'Average Annual Spend ($K)', angle: -90, position: 'insideLeft' }}
             />
             <Tooltip 
               cursor={{ strokeDasharray: '3 3' }}
@@ -280,14 +309,12 @@ export const VendorVisualizations: React.FC = () => {
                   const data = payload[0].payload;
                   return (
                     <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
-                      <p className="font-semibold">{data.vendor}</p>
-                      <p className="text-sm text-gray-600">{data.category}</p>
-                      <p>Lead Time: {data.leadTime} days</p>
-                      <p>Days of Supply: {data.daysOfSupply} days</p>
-                      <p>Usage Frequency: {data.frequency}/month</p>
+                      <p className="font-semibold">{data.portfolio}</p>
+                      <p>Lead Time: {data.avgLeadTime.toFixed(1)} days</p>
+                      <p>Avg Spend: {formatCurrency(data.avgSpend)}</p>
+                      <p>Vendor Count: {data.vendorCount}</p>
                       <p className={`font-semibold ${
-                        data.riskLevel === 'Critical' ? 'text-red-600' :
-                        data.riskLevel === 'High' ? 'text-orange-600' :
+                        data.riskLevel === 'High' ? 'text-red-600' :
                         data.riskLevel === 'Medium' ? 'text-yellow-600' :
                         'text-green-600'
                       }`}>Risk: {data.riskLevel}</p>
@@ -298,37 +325,77 @@ export const VendorVisualizations: React.FC = () => {
               }}
             />
             <Scatter 
-              data={inventoryRiskData.filter(d => d.riskLevel === 'Low')} 
+              data={portfolioChartData.filter(d => d.riskLevel === 'Low')} 
               fill="#10B981" 
               name="Low Risk"
             />
             <Scatter 
-              data={inventoryRiskData.filter(d => d.riskLevel === 'Medium')} 
+              data={portfolioChartData.filter(d => d.riskLevel === 'Medium')} 
               fill="#F59E0B" 
               name="Medium Risk"
             />
             <Scatter 
-              data={inventoryRiskData.filter(d => d.riskLevel === 'High')} 
+              data={portfolioChartData.filter(d => d.riskLevel === 'High')} 
               fill="#EF4444" 
               name="High Risk"
-            />
-            <Scatter 
-              data={inventoryRiskData.filter(d => d.riskLevel === 'Critical')} 
-              fill="#DC2626" 
-              name="Critical Risk"
             />
             <Legend />
           </ScatterChart>
         </ResponsiveContainer>
       ),
-      tableData: inventoryRiskData.slice(0, 15),
+      tableData: portfolioChartData.slice(0, 10),
       tableColumns: [
-        { key: 'vendor', label: 'Equipment Vendor' },
-        { key: 'category', label: 'Category' },
-        { key: 'leadTime', label: 'Lead Time (Days)' },
-        { key: 'daysOfSupply', label: 'Days of Supply' },
-        { key: 'frequency', label: 'Usage Frequency' },
+        { key: 'portfolio', label: 'Portfolio' },
+        { key: 'vendorCount', label: 'Vendor Count' },
+        { key: 'avgLeadTime', label: 'Avg Lead Time (Days)' },
+        { key: 'avgSpend', label: 'Avg Annual Spend' },
         { key: 'riskLevel', label: 'Risk Level' }
+      ]
+    },
+    {
+      title: "Annual Spend by Country",
+      subtitle: "Total Annual Procurement Spend by Vendor Country",
+      chart: (
+        <ResponsiveContainer width="100%" height={500}>
+          <BarChart data={spendByCountryData} margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="country" 
+              angle={-45} 
+              textAnchor="end" 
+              height={100}
+              interval={0}
+              fontSize={12}
+            />
+            <YAxis 
+              label={{ value: 'Annual Spend (Millions $)', angle: -90, position: 'insideLeft' }}
+              tickFormatter={(value) => `$${Number(value).toFixed(1)}M`}
+            />
+            <Tooltip 
+              formatter={(value, name) => [
+                name === 'spendInMillions' ? `$${Number(value).toFixed(1)}M` : value,
+                name === 'spendInMillions' ? 'Total Annual Spend' : name
+              ]}
+              labelFormatter={(label) => {
+                const item = spendByCountryData.find(d => d.country === label);
+                return item?.fullCountry || label;
+              }}
+            />
+            <Legend />
+            <Bar 
+              dataKey="spendInMillions" 
+              name="Annual Spend ($M)"
+              fill="#1F2937"
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      ),
+      tableData: spendByCountryData,
+      tableColumns: [
+        { key: 'fullCountry', label: 'Country' },
+        { key: 'totalSpend', label: 'Total Annual Spend' },
+        { key: 'vendorCount', label: 'Vendor Count' },
+        { key: 'avgSpendPerVendor', label: 'Avg Spend per Vendor' }
       ]
     }
   ];
@@ -347,9 +414,14 @@ export const VendorVisualizations: React.FC = () => {
     <div className="space-y-8">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">Equipment Risk Visualizations</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">Vendor Risk Visualizations</h2>
         <p className="text-gray-600">
-          Interactive analysis of {equipmentData.length} equipment vendors. Use the navigation to explore different aspects of equipment supply chain risk.
+          Interactive analysis of {uniqueVendors.length} unique vendors ({data.length} total records). 
+          {data.length - uniqueVendors.length > 0 && (
+            <span className="text-orange-600 font-medium">
+              {' '}Note: {data.length - uniqueVendors.length} duplicate vendor numbers detected.
+            </span>
+          )}
         </p>
       </div>
 
@@ -443,6 +515,8 @@ export const VendorVisualizations: React.FC = () => {
                             }`}>
                               {row[column.key]}
                             </span>
+                          ) : column.key === 'avgSpend' || column.key === 'totalSpend' || column.key === 'avgSpendPerVendor' ? (
+                            formatCurrencyMillions(row[column.key])
                           ) : (
                             row[column.key] || 'N/A'
                           )}
@@ -459,20 +533,34 @@ export const VendorVisualizations: React.FC = () => {
 
       {/* Key Insights Summary */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-3">Key Equipment Supply Chain Insights</h3>
+        <h3 className="text-lg font-semibold text-blue-900 mb-3">Key Vendor Supply Chain Insights</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
           <ul className="space-y-2">
-            <li>• {leadTimeChartData.filter(cat => cat.riskLevel === 'High').length} equipment categories have high lead time risk (&gt;30 days)</li>
-            <li>• {((riskDistribution['High'] || 0) / equipmentData.length * 100).toFixed(1)}% of equipment vendors are high risk</li>
-            <li>• {geographicChartData.filter(geo => geo.highRiskVendors > 0).length} countries have high-risk equipment vendors</li>
+            <li>• {leadTimeChartData.filter(cat => cat.riskLevel === 'High').length} vendor categories have high lead time risk (&gt;30 days)</li>
+            <li>• {((riskDistribution['High'] || 0) / uniqueVendors.length * 100).toFixed(1)}% of vendors are high risk</li>
+            <li>• {geographicChartData.filter(geo => geo.highRiskVendors > 0).length} countries have high-risk vendors</li>
+            <li>• {spendByCountryData[0]?.fullCountry || 'N/A'} has the highest annual spend ({formatCurrencyMillions(spendByCountryData[0]?.totalSpend || 0)})</li>
           </ul>
           <ul className="space-y-2">
-            <li>• {inventoryRiskData.filter(item => item.riskLevel === 'Critical').length} equipment items require immediate attention</li>
-            <li>• Average equipment lead time: {formatNumber(equipmentData.reduce((sum, v) => sum + Number(v.avg_lead_time_days_x || v.avg_lead_time_days || 0), 0) / equipmentData.length)} days</li>
-            <li>• Equipment vendors span {Object.keys(geographicData).length} countries globally</li>
+            <li>• {portfolioChartData.filter(item => item.riskLevel === 'High').length} portfolios require immediate attention</li>
+            <li>• Average vendor lead time: {formatNumber(uniqueVendors.reduce((sum, v) => sum + Number(v.average_lead_time_days || 0), 0) / uniqueVendors.length)} days</li>
+            <li>• Vendors span {Object.keys(geographicData).length} countries globally</li>
+            <li>• Total annual procurement spend: {formatCurrencyMillions(spendByCountryData.reduce((sum, country) => sum + country.totalSpend, 0))}</li>
           </ul>
         </div>
       </div>
+
+      {/* Duplicate Warning */}
+      {data.length - uniqueVendors.length > 0 && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-orange-900 mb-3">Data Quality Alert</h3>
+          <p className="text-orange-800">
+            <strong>{data.length - uniqueVendors.length} duplicate vendor numbers detected</strong> in your dataset. 
+            Consider cleaning the data to remove duplicates for more accurate analysis. 
+            Total records: {data.length}, Unique vendors: {uniqueVendors.length}
+          </p>
+        </div>
+      )}
     </div>
   );
 }; 

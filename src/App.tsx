@@ -6,9 +6,10 @@ import { TradeDataTable } from './components/TradeDataTable';
 import { TradeDataVisualizations } from './components/TradeDataVisualizations';
 import { VendorTradeAnalysis } from './components/VendorTradeAnalysis';
 import { SupplyChainRiskDashboard } from './components/SupplyChainRiskDashboard';
+import BCHydroHackathonSlideshow from './components/BCHydroHackathonSlideshow';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'visualizations' | 'trade' | 'trade-viz' | 'vendor-trade' | 'risk-dashboard'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'visualizations' | 'trade' | 'trade-viz' | 'vendor-trade' | 'risk-dashboard' | 'slideshow'>('overview');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -21,7 +22,7 @@ function App() {
             Comprehensive vendor risk assessment and supply chain analytics for strategic decision making
           </p>
         </div>
-        
+
         {/* Tab Navigation */}
         <div className="mb-8">
           <nav className="flex space-x-8">
@@ -85,6 +86,16 @@ function App() {
             >
               Supply Chain Risk Dashboard
             </button>
+            <button
+              onClick={() => setActiveTab('slideshow')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'slideshow'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Hackathon Slideshow
+            </button>
           </nav>
         </div>
         
@@ -110,6 +121,9 @@ function App() {
           )}
           {activeTab === 'risk-dashboard' && (
             <SupplyChainRiskDashboard />
+          )}
+          {activeTab === 'slideshow' && (
+            <BCHydroHackathonSlideshow />
           )}
         </div>
       </div>

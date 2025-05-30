@@ -67,7 +67,6 @@ export type Database = {
           id: number
           portfolio: string | null
           reorder_point_stock_level: number | null
-          restricted_us_vendor: string | null
           risk_tolerance_category: string | null
           safety_stock: number | null
           std_dev_lead_time_days: number | null
@@ -87,7 +86,6 @@ export type Database = {
           id?: number
           portfolio?: string | null
           reorder_point_stock_level?: number | null
-          restricted_us_vendor?: string | null
           risk_tolerance_category?: string | null
           safety_stock?: number | null
           std_dev_lead_time_days?: number | null
@@ -107,13 +105,45 @@ export type Database = {
           id?: number
           portfolio?: string | null
           reorder_point_stock_level?: number | null
-          restricted_us_vendor?: string | null
           risk_tolerance_category?: string | null
           safety_stock?: number | null
           std_dev_lead_time_days?: number | null
           updated_at?: string | null
           vendor_number?: number | null
           vendor_performance?: string | null
+        }
+        Relationships: []
+      }
+      country_trade_partners: {
+        Row: {
+          id: number
+          reporter_name: string | null
+          partner_name: string | null
+          hs_code: string | null
+          year: number | null
+          import_value: number | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: number
+          reporter_name?: string | null
+          partner_name?: string | null
+          hs_code?: string | null
+          year?: number | null
+          import_value?: number | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: number
+          reporter_name?: string | null
+          partner_name?: string | null
+          hs_code?: string | null
+          year?: number | null
+          import_value?: number | null
+          created_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -215,4 +245,8 @@ export type InventoryDataNoServicesUpdate = TablesUpdate<'inventory_data_no_serv
 
 export type VendorRiskInventory = Tables<'vendor_risk_inventory'>
 export type VendorRiskInventoryInsert = TablesInsert<'vendor_risk_inventory'>
-export type VendorRiskInventoryUpdate = TablesUpdate<'vendor_risk_inventory'> 
+export type VendorRiskInventoryUpdate = TablesUpdate<'vendor_risk_inventory'>
+
+export type CountryTradePartners = Tables<'country_trade_partners'>
+export type CountryTradePartnersInsert = TablesInsert<'country_trade_partners'>
+export type CountryTradePartnersUpdate = TablesUpdate<'country_trade_partners'> 

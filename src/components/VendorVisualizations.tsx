@@ -37,25 +37,32 @@ export const VendorVisualizations: React.FC = () => {
       fullCategory: category,
       avgLeadTime: Number((data.totalLeadTime / data.count).toFixed(1)),
       vendorCount: data.count,
-      riskLevel: (data.totalLeadTime / data.count) > 30 ? 'High' : 
-                 (data.totalLeadTime / data.count) > 15 ? 'Medium' : 'Low'
+      // Use the most common risk level in this category from the database
+      riskLevel: data.vendors.reduce((acc: any, vendor: any) => {
+        const risk = vendor.risk_tolerance_category || 'Unknown';
+        acc[risk] = (acc[risk] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>)
+    }))
+    .map(item => ({
+      ...item,
+      riskLevel: Object.entries(item.riskLevel as Record<string, number>)
+        .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || 'Unknown'
     }))
     .sort((a, b) => b.avgLeadTime - a.avgLeadTime)
     .slice(0, 15);
 
-  // Slide 2: Risk Distribution (Pie Chart)
+  // Slide 2: Risk Distribution (Pie Chart) - Convert tolerance to clear labels
   const riskDistribution = uniqueVendors.reduce((acc, vendor) => {
-    let risk = vendor.risk_tolerance_category || 'Unknown';
+    const tolerance = vendor.risk_tolerance_category || 'Unknown';
+    // Convert tolerance to clear labels
+    let toleranceLabel = 'Unknown';
+    if (tolerance === 'Low') toleranceLabel = 'Low Risk Tolerance';
+    else if (tolerance === 'Med') toleranceLabel = 'Medium Risk Tolerance';
+    else if (tolerance === 'High') toleranceLabel = 'High Risk Tolerance';
+    else toleranceLabel = tolerance;
     
-    // If no risk category, calculate from lead time
-    if (risk === 'Unknown' || !risk) {
-      const leadTime = vendor.average_lead_time_days || 0;
-      if (leadTime > 30) risk = 'High';
-      else if (leadTime > 15) risk = 'Medium';
-      else risk = 'Low';
-    }
-    
-    acc[risk] = (acc[risk] || 0) + 1;
+    acc[toleranceLabel] = (acc[toleranceLabel] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -69,6 +76,7 @@ export const VendorVisualizations: React.FC = () => {
   const geographicData = uniqueVendors.reduce((acc, vendor) => {
     const country = vendor.country_of_origin || 'Unknown';
     const leadTime = vendor.average_lead_time_days || 0;
+    const tolerance = vendor.risk_tolerance_category || 'Unknown';
     
     if (!acc[country]) {
       acc[country] = { count: 0, totalLeadTime: 0, highRiskVendors: 0, totalSpend: 0 };
@@ -76,7 +84,11 @@ export const VendorVisualizations: React.FC = () => {
     acc[country].count += 1;
     acc[country].totalLeadTime += Number(leadTime);
     acc[country].totalSpend += Number(vendor.annual_spend || 0);
-    if (Number(leadTime) > 30) acc[country].highRiskVendors += 1;
+    
+    // High risk: Low tolerance (which means high risk to us) OR long lead time (>30 days)
+    if (tolerance === 'Low' || Number(leadTime) > 30) {
+      acc[country].highRiskVendors += 1;
+    }
     return acc;
   }, {} as Record<string, any>);
 
@@ -105,13 +117,15 @@ export const VendorVisualizations: React.FC = () => {
           totalSpend: 0,
           avgLeadTime: 0,
           vendorCount: 0,
-          performances: []
+          performances: [],
+          vendors: []
         };
       }
       
       acc[portfolio].totalSpend += spend;
       acc[portfolio].avgLeadTime += leadTime;
       acc[portfolio].vendorCount += 1;
+      acc[portfolio].vendors.push(vendor);
       if (vendor.vendor_performance) {
         acc[portfolio].performances.push(vendor.vendor_performance);
       }
@@ -127,8 +141,19 @@ export const VendorVisualizations: React.FC = () => {
       vendorCount: portfolio.vendorCount,
       x: portfolio.avgLeadTime / portfolio.vendorCount,
       y: portfolio.totalSpend / portfolio.vendorCount / 1000, // Convert to thousands
-      riskLevel: (portfolio.avgLeadTime / portfolio.vendorCount) > 30 ? 'High' : 
-                 (portfolio.avgLeadTime / portfolio.vendorCount) > 15 ? 'Medium' : 'Low'
+      // Use the most common risk level in this portfolio from the database
+      riskLevel: portfolio.vendors?.reduce((acc: any, vendor: any) => {
+        const risk = vendor.risk_tolerance_category || 'Unknown';
+        acc[risk] = (acc[risk] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>)
+    }))
+    .map(item => ({
+      ...item,
+      riskLevel: item.riskLevel ? 
+        Object.entries(item.riskLevel as Record<string, number>)
+          .sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || 'Unknown'
+        : 'Unknown'
     }))
     .filter(p => p.vendorCount > 0)
     .slice(0, 20);
@@ -147,11 +172,12 @@ export const VendorVisualizations: React.FC = () => {
     .sort((a, b) => b.totalSpend - a.totalSpend)
     .slice(0, 12);
 
-  // Chart colors
+  // Chart colors - corrected for proper risk interpretation
   const RISK_COLORS = {
-    'Low': '#10B981',
-    'Medium': '#F59E0B', 
-    'High': '#EF4444',
+    'Low': '#EF4444',    // Low tolerance = High risk (Red)
+    'Medium': '#F59E0B',  // Medium tolerance = Medium risk (Yellow) 
+    'Med': '#F59E0B',     // Handle database variant
+    'High': '#10B981',   // High tolerance = Low risk (Green)
     'Critical': '#DC2626',
     'Unknown': '#6B7280'
   };
@@ -214,12 +240,12 @@ export const VendorVisualizations: React.FC = () => {
         { key: 'fullCategory', label: 'Vendor Category' },
         { key: 'avgLeadTime', label: 'Avg Lead Time (Days)' },
         { key: 'vendorCount', label: 'Vendor Count' },
-        { key: 'riskLevel', label: 'Risk Level' }
+        { key: 'riskLevel', label: 'Risk Tolerance Level' }
       ]
     },
     {
-      title: "Vendor Risk Distribution",
-      subtitle: "Risk Level Distribution Based on Lead Time and Categories",
+      title: "Vendor Risk Tolerance Distribution",
+      subtitle: "Risk Tolerance Level Distribution of All Vendors",
       chart: (
         <ResponsiveContainer width="100%" height={500}>
           <PieChart>
@@ -314,10 +340,14 @@ export const VendorVisualizations: React.FC = () => {
                       <p>Avg Spend: {formatCurrency(data.avgSpend)}</p>
                       <p>Vendor Count: {data.vendorCount}</p>
                       <p className={`font-semibold ${
-                        data.riskLevel === 'High' ? 'text-red-600' :
-                        data.riskLevel === 'Medium' ? 'text-yellow-600' :
+                        data.riskLevel === 'Low' ? 'text-red-600' :
+                        data.riskLevel === 'Medium' || data.riskLevel === 'Med' ? 'text-yellow-600' :
                         'text-green-600'
-                      }`}>Risk: {data.riskLevel}</p>
+                      }`}>Risk Tolerance: {
+                        data.riskLevel === 'Low' ? 'Low' :
+                        data.riskLevel === 'Medium' || data.riskLevel === 'Med' ? 'Medium' :
+                        data.riskLevel === 'High' ? 'High' : data.riskLevel
+                      }</p>
                     </div>
                   );
                 }
@@ -325,19 +355,19 @@ export const VendorVisualizations: React.FC = () => {
               }}
             />
             <Scatter 
-              data={portfolioChartData.filter(d => d.riskLevel === 'Low')} 
-              fill="#10B981" 
-              name="Low Risk"
-            />
-            <Scatter 
-              data={portfolioChartData.filter(d => d.riskLevel === 'Medium')} 
-              fill="#F59E0B" 
-              name="Medium Risk"
-            />
-            <Scatter 
               data={portfolioChartData.filter(d => d.riskLevel === 'High')} 
+              fill="#10B981" 
+              name="High Risk Tolerance"
+            />
+            <Scatter 
+              data={portfolioChartData.filter(d => d.riskLevel === 'Med' || d.riskLevel === 'Medium')} 
+              fill="#F59E0B" 
+              name="Medium Risk Tolerance"
+            />
+            <Scatter 
+              data={portfolioChartData.filter(d => d.riskLevel === 'Low')} 
               fill="#EF4444" 
-              name="High Risk"
+              name="Low Risk Tolerance"
             />
             <Legend />
           </ScatterChart>
@@ -349,7 +379,7 @@ export const VendorVisualizations: React.FC = () => {
         { key: 'vendorCount', label: 'Vendor Count' },
         { key: 'avgLeadTime', label: 'Avg Lead Time (Days)' },
         { key: 'avgSpend', label: 'Avg Annual Spend' },
-        { key: 'riskLevel', label: 'Risk Level' }
+        { key: 'riskLevel', label: 'Risk Tolerance Level' }
       ]
     },
     {
@@ -536,13 +566,13 @@ export const VendorVisualizations: React.FC = () => {
         <h3 className="text-lg font-semibold text-blue-900 mb-3">Key Vendor Supply Chain Insights</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
           <ul className="space-y-2">
-            <li>• {leadTimeChartData.filter(cat => cat.riskLevel === 'High').length} vendor categories have high lead time risk (&gt;30 days)</li>
-            <li>• {((riskDistribution['High'] || 0) / uniqueVendors.length * 100).toFixed(1)}% of vendors are high risk</li>
-            <li>• {geographicChartData.filter(geo => geo.highRiskVendors > 0).length} countries have high-risk vendors</li>
+            <li>• {leadTimeChartData.filter(cat => cat.riskLevel === 'Low').length} vendor categories have low risk tolerance (highest supply chain risk)</li>
+            <li>• {((riskDistribution['Low Risk Tolerance'] || 0) / uniqueVendors.length * 100).toFixed(1)}% of vendors have low risk tolerance</li>
+            <li>• {geographicChartData.filter(geo => geo.highRiskVendors > 0).length} countries have high-risk vendors (low tolerance or long lead times)</li>
             <li>• {spendByCountryData[0]?.fullCountry || 'N/A'} has the highest annual spend ({formatCurrencyMillions(spendByCountryData[0]?.totalSpend || 0)})</li>
           </ul>
           <ul className="space-y-2">
-            <li>• {portfolioChartData.filter(item => item.riskLevel === 'High').length} portfolios require immediate attention</li>
+            <li>• {portfolioChartData.filter(item => item.riskLevel === 'Low').length} portfolios require immediate attention (low risk tolerance vendors)</li>
             <li>• Average vendor lead time: {formatNumber(uniqueVendors.reduce((sum, v) => sum + Number(v.average_lead_time_days || 0), 0) / uniqueVendors.length)} days</li>
             <li>• Vendors span {Object.keys(geographicData).length} countries globally</li>
             <li>• Total annual procurement spend: {formatCurrencyMillions(spendByCountryData.reduce((sum, country) => sum + country.totalSpend, 0))}</li>

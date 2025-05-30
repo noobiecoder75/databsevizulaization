@@ -6,11 +6,38 @@ export const VendorRiskInventory: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [riskFilter, setRiskFilter] = useState<string>('all');
 
-  // Get unique vendors by vendor_number to avoid duplicates
+  // Get unique vendors by vendor_number, prioritizing highest risk level
   const uniqueVendors = data.reduce((acc, vendor) => {
-    if (vendor.vendor_number && !acc.find(v => v.vendor_number === vendor.vendor_number)) {
+    if (!vendor.vendor_number) return acc;
+    
+    const existingVendorIndex = acc.findIndex(v => v.vendor_number === vendor.vendor_number);
+    
+    if (existingVendorIndex === -1) {
+      // No duplicate found, add the vendor
       acc.push(vendor);
+    } else {
+      // Duplicate found, keep the one with higher risk
+      const existingRisk = acc[existingVendorIndex].risk_tolerance_category || 'Unknown';
+      const currentRisk = vendor.risk_tolerance_category || 'Unknown';
+      
+      // Risk priority: Low tolerance (High risk) > Med tolerance (Medium risk) > High tolerance (Low risk) > Unknown
+      const getRiskPriority = (risk: string) => {
+        switch (risk) {
+          case 'Low': return 4;  // Low risk tolerance = High risk to us
+          case 'Med': 
+          case 'Medium': return 3; // Medium risk tolerance = Medium risk to us
+          case 'High': return 2;   // High risk tolerance = Low risk to us
+          default: return 1; // Unknown
+        }
+      };
+      
+      if (getRiskPriority(currentRisk) > getRiskPriority(existingRisk)) {
+        // Replace with higher risk vendor
+        acc[existingVendorIndex] = vendor;
+      }
+      // If current risk is lower or equal, keep existing vendor
     }
+    
     return acc;
   }, [] as typeof data);
 
@@ -23,47 +50,38 @@ export const VendorRiskInventory: React.FC = () => {
         vendor.vendor_performance?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vendor.vendor_number?.toString().includes(searchTerm);
 
-      // Use risk_tolerance_category if available, otherwise calculate from lead time
-      let riskLevel = vendor.risk_tolerance_category || 'Unknown';
-      if (riskLevel === 'Unknown' || !riskLevel) {
-        const leadTime = vendor.average_lead_time_days || 0;
-        if (leadTime > 30) riskLevel = 'High';
-        else if (leadTime > 15) riskLevel = 'Medium';
-        else riskLevel = 'Low';
-      }
-
+      // Map filter selections to database tolerance values
+      const tolerance = vendor.risk_tolerance_category || 'Unknown';
+      
       const matchesRisk = 
         riskFilter === 'all' || 
-        riskLevel === riskFilter;
+        (riskFilter === 'High' && tolerance === 'Low') ||     // "Low Risk Tolerance" maps to Low tolerance
+        (riskFilter === 'Medium' && (tolerance === 'Med' || tolerance === 'Medium')) ||
+        (riskFilter === 'Low' && tolerance === 'High');      // "High Risk Tolerance" maps to High tolerance
 
       return matchesSearch && matchesRisk;
     });
   }, [uniqueVendors, searchTerm, riskFilter]);
 
   const getRiskColor = (vendor: any) => {
-    let riskLevel = vendor.risk_tolerance_category || 'Unknown';
-    if (riskLevel === 'Unknown' || !riskLevel) {
-      const leadTime = vendor.average_lead_time_days || 0;
-      if (leadTime > 30) riskLevel = 'High';
-      else if (leadTime > 15) riskLevel = 'Medium';
-      else riskLevel = 'Low';
-    }
+    const riskLevel = vendor.risk_tolerance_category || 'Unknown';
     
-    if (riskLevel === 'High') return 'bg-red-100 text-red-800';
-    if (riskLevel === 'Medium') return 'bg-yellow-100 text-yellow-800';
-    if (riskLevel === 'Low') return 'bg-green-100 text-green-800';
+    // Low risk tolerance = High risk to us (Red)
+    if (riskLevel === 'Low') return 'bg-red-100 text-red-800';
+    // Medium risk tolerance = Medium risk to us (Yellow)
+    if (riskLevel === 'Medium' || riskLevel === 'Med') return 'bg-yellow-100 text-yellow-800';
+    // High risk tolerance = Low risk to us (Green)
+    if (riskLevel === 'High') return 'bg-green-100 text-green-800';
     return 'bg-gray-100 text-gray-800';
   };
 
   const getRiskLevel = (vendor: any) => {
-    let riskLevel = vendor.risk_tolerance_category || 'Unknown';
-    if (riskLevel === 'Unknown' || !riskLevel) {
-      const leadTime = vendor.average_lead_time_days || 0;
-      if (leadTime > 30) riskLevel = 'High';
-      else if (leadTime > 15) riskLevel = 'Medium';
-      else riskLevel = 'Low';
-    }
-    return riskLevel;
+    const tolerance = vendor.risk_tolerance_category || 'Unknown';
+    // Convert tolerance to clear risk level labels
+    if (tolerance === 'Low') return 'Low Risk Tolerance';
+    if (tolerance === 'Med' || tolerance === 'Medium') return 'Medium Risk Tolerance';
+    if (tolerance === 'High') return 'High Risk Tolerance';
+    return 'Unknown';
   };
 
   const formatNumber = (value: any) => {
@@ -120,6 +138,10 @@ export const VendorRiskInventory: React.FC = () => {
             <p className="text-sm text-orange-800">
               <strong>Data Quality Notice:</strong> {duplicateCount} duplicate vendor numbers detected. 
               Showing {uniqueVendors.length} unique vendors from {data.length} total records.
+              <br />
+              <span className="text-xs mt-1 block">
+                For vendors with multiple risk levels, displaying the highest risk classification.
+              </span>
             </p>
           </div>
         )}
@@ -141,10 +163,10 @@ export const VendorRiskInventory: React.FC = () => {
               value={riskFilter}
               onChange={(e) => setRiskFilter(e.target.value)}
             >
-              <option value="all">All Risk Levels</option>
-              <option value="Low">Low Risk</option>
-              <option value="Medium">Medium Risk</option>
-              <option value="High">High Risk</option>
+              <option value="all">All Risk Tolerance Levels</option>
+              <option value="High">Low Risk Tolerance</option>
+              <option value="Medium">Medium Risk Tolerance</option>
+              <option value="Low">High Risk Tolerance</option>
             </select>
           </div>
         </div>
@@ -166,7 +188,7 @@ export const VendorRiskInventory: React.FC = () => {
                 Category
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Risk Level
+                Risk Tolerance Level
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Lead Time (Days)

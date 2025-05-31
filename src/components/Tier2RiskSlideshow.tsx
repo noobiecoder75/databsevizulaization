@@ -1,34 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import Papa from 'papaparse';
+import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useVendorRiskInventory } from '../hooks/useVendorRiskInventory';
-
-interface TradeRow {
-  reporter_name: string;
-  partner_name: string;
-  trade_value_usd?: string;
-  hs_code_category?: string;
-}
+import { useCountryTradePartners } from '../hooks/useCountryTradePartners';
 
 const Tier2RiskSlideshow: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [tradeData, setTradeData] = useState<TradeRow[]>([]);
   const { data: vendorData } = useVendorRiskInventory();
-
-  // Load CSV once
-  useEffect(() => {
-    fetch('/data/country_trade_partners.csv')
-      .then(res => res.text())
-      .then(text => {
-        Papa.parse<TradeRow>(text, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => setTradeData(results.data)
-        });
-      })
-      .catch(err => console.error('Error loading CSV', err));
-  }, []);
+  const { data: tradeData } = useCountryTradePartners();
 
   // Helper: get equipment categories at risk sourced from USA
   const usaEquipment = useMemo(() => {
@@ -51,7 +30,7 @@ const Tier2RiskSlideshow: React.FC = () => {
     filtered.forEach(r => {
       const partner = r.partner_name;
       if (!partner) return;
-      const val = Number(r.trade_value_usd || 0);
+      const val = Number(r.import_value || 0);
       byPartner[partner] = (byPartner[partner] || 0) + val;
     });
     return Object.entries(byPartner)

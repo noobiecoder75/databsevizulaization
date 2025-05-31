@@ -8,7 +8,7 @@ interface TitleSlideProps {
 const TitleSlide: React.FC<TitleSlideProps> = ({ colors }) => {
   return (
     <div 
-      className="h-full flex flex-col justify-center items-center text-center relative overflow-hidden"
+      className="h-full flex flex-col justify-center items-center text-center relative overflow-hidden pb-24"
       style={{ 
         background: `linear-gradient(135deg, ${colors.navy} 0%, ${colors.darkGreen} 100%)` 
       }}

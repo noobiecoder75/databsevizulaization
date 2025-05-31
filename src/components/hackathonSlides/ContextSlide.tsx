@@ -9,7 +9,7 @@ interface ContextSlideProps {
 const ContextSlide: React.FC<ContextSlideProps> = ({ colors }) => {
   return (
     <div 
-      className="h-full p-12 relative overflow-hidden"
+      className="h-full p-8 pb-24 relative overflow-hidden"
       style={{ 
         background: `linear-gradient(135deg, ${colors.lightGrey} 0%, #E8F4FD 100%)` 
       }}

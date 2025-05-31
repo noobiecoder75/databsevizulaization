@@ -80,7 +80,7 @@ const TariffSlide: React.FC<TariffSlideProps> = ({ colors, vendorData, CHART_COL
 
   return (
     <div 
-      className="h-full p-12 relative overflow-hidden"
+      className="h-full p-8 pb-24 relative overflow-hidden"
       style={{ 
         background: `linear-gradient(135deg, ${colors.chartRed}15 0%, ${colors.lightGrey} 50%, ${colors.chartOrange}15 100%)` 
       }}

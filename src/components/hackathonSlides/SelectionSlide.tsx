@@ -54,7 +54,7 @@ const SelectionSlide: React.FC<SelectionSlideProps> = ({ colors, vendorData, CHA
 
   return (
     <div 
-      className="h-full p-12 relative overflow-hidden"
+      className="h-full p-8 pb-24 relative overflow-hidden"
       style={{ 
         background: `linear-gradient(135deg, ${colors.darkGreen}15 0%, ${colors.lightGrey} 50%, ${colors.teal}15 100%)` 
       }}

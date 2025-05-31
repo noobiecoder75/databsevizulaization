@@ -5,13 +5,11 @@ import { VendorVisualizations } from './components/VendorVisualizations';
 import { TradeDataTable } from './components/TradeDataTable';
 import { TradeDataVisualizations } from './components/TradeDataVisualizations';
 import { VendorTradeAnalysis } from './components/VendorTradeAnalysis';
-import { SupplyChainRiskDashboard } from './components/SupplyChainRiskDashboard';
-import BCHydroHackathonSlideshow from './components/BCHydroHackathonSlideshow';
 import BCHydroHackathonSlideshowRefactored from './components/BCHydroHackathonSlideshowRefactored';
 import BCHydroTier2SlideshowRefactored from './components/BCHydroTier2SlideshowRefactored';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'visualizations' | 'trade' | 'trade-viz' | 'vendor-trade' | 'risk-dashboard' | 'slideshow' | 'slideshow-refactored' | 'tier2-slideshow'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'visualizations' | 'trade' | 'trade-viz' | 'vendor-trade' | 'slideshow-refactored' | 'tier2-slideshow'>('overview');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -79,26 +77,6 @@ function App() {
               BC Hydro Vendor Analysis
             </button>
             <button
-              onClick={() => setActiveTab('risk-dashboard')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === 'risk-dashboard'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Supply Chain Risk Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab('slideshow')}
-              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                activeTab === 'slideshow'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Hackathon Slideshow
-            </button>
-            <button
               onClick={() => setActiveTab('slideshow-refactored')}
               className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                 activeTab === 'slideshow-refactored'
@@ -140,12 +118,6 @@ function App() {
           )}
           {activeTab === 'vendor-trade' && (
             <VendorTradeAnalysis />
-          )}
-          {activeTab === 'risk-dashboard' && (
-            <SupplyChainRiskDashboard />
-          )}
-          {activeTab === 'slideshow' && (
-            <BCHydroHackathonSlideshow />
           )}
           {activeTab === 'slideshow-refactored' && (
             <BCHydroHackathonSlideshowRefactored />

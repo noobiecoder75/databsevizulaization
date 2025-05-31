@@ -9,7 +9,7 @@ interface ConclusionSlideProps {
 const ConclusionSlide: React.FC<ConclusionSlideProps> = ({ colors }) => {
   return (
     <div 
-      className="h-full p-12 relative overflow-hidden"
+      className="h-full p-8 pb-24 relative overflow-hidden"
       style={{ 
         background: `linear-gradient(135deg, ${colors.navy} 0%, ${colors.darkGreen} 100%)` 
       }}

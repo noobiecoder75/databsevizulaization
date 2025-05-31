@@ -25,107 +25,131 @@ const ImmediateActionsSlide: React.FC<ImmediateActionsSlideProps> = ({ colors, a
     <div className="h-full flex flex-col" style={{ backgroundColor: colors.light }}>
       {/* Header */}
       <div className="p-8 pb-4">
-        <h1 className="text-5xl font-bold text-gray-800">Immediate Actions</h1>
-        <h2 className="text-xl text-gray-600 font-semibold">(0-6 Months)</h2>
+        <h1 className="text-5xl font-bold text-gray-800">Strategic Objectives</h1>
+        <h2 className="text-xl text-gray-600 font-semibold">Risk Mitigation Timeline</h2>
       </div>
       
       {/* Main Content */}
       <div className="flex-1 px-8 pb-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-full">
           
-          {/* Left Column - Inventory Management */}
-          <div className="flex flex-col">
-            <h2 className="text-2xl font-bold mb-6" style={{ color: colors.primary }}>Inventory Management</h2>
-            <div className="flex-1 flex flex-col justify-between space-y-4">
+          {/* Short Term Column */}
+          <div className="flex flex-col overflow-hidden">
+            <h2 className="text-xl font-bold mb-4" style={{ color: colors.primary }}>Short Term</h2>
+            <div className="flex-1 space-y-4 overflow-y-auto">
               
-              <div style={{ backgroundColor: colors.secondary }} className="p-6 rounded-xl text-white shadow-lg flex-1 flex flex-col">
-                <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-4">1</div>
-                  <h3 className="font-bold text-lg text-white">Increase US Equipment Buffers</h3>
+              <div className="bg-slate-600 p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-3">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-xs font-bold mr-3">1</div>
+                  <h3 className="font-bold text-sm text-white">Strengthen Non-USA Vendor Relationships</h3>
                 </div>
-                <p className="text-sm font-medium mb-4 flex-1">
-                  Boost safety stock for vulnerable categories by 50-100% before tariffs take effect
+                <p className="text-xs font-medium mb-3">
+                  Build stronger partnerships with European and Asian suppliers to reduce US dependency
                 </p>
-                <div className="bg-white/20 p-3 rounded-lg text-sm">
+                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                  <div className="font-bold">Target: Key alternate suppliers</div>
+                  <div className="font-bold">Timeline: 6 months</div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-600 p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-3">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-xs font-bold mr-3">2</div>
+                  <h3 className="font-bold text-sm text-white">Increase Safety Stock</h3>
+                </div>
+                <p className="text-xs font-medium mb-3">
+                  Boost inventory buffers for vulnerable categories by 50-100%
+                </p>
+                <div className="bg-white/20 p-2 rounded-lg text-xs">
                   <div className="font-bold">Target: {analysisData?.tariffData.length || 0} categories</div>
-                  <div className="font-bold">Timeline: 60 days</div>
+                  <div className="font-bold">Priority: Critical components</div>
                 </div>
               </div>
               
-              <div style={{ backgroundColor: colors.warning }} className="p-6 rounded-xl text-white shadow-lg flex-1 flex flex-col">
-                <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-4">2</div>
-                  <h3 className="font-bold text-lg text-white">Accelerate Pending Orders</h3>
+              <div className="bg-blue-700 p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-3">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-xs font-bold mr-3">3</div>
+                  <h3 className="font-bold text-sm text-white">Government Engagement</h3>
                 </div>
-                <p className="text-sm font-medium mb-4 flex-1">
-                  Fast-track Q1-Q2 procurement to avoid tariff impact
+                <p className="text-xs font-medium mb-3">
+                  Lobby for better inter-provincial trade and stronger ties with alternative supplier countries
                 </p>
-                <div className="bg-white/20 p-3 rounded-lg text-sm">
-                  <div className="font-bold">Potential savings: $2-4M</div>
-                  <div className="font-bold">Priority: US sourced equipment</div>
-                </div>
-              </div>
-              
-              <div style={{ backgroundColor: colors.info }} className="p-6 rounded-xl text-white shadow-lg flex-1 flex flex-col">
-                <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-4">3</div>
-                  <h3 className="font-bold text-lg text-white">Contract Renegotiation</h3>
-                </div>
-                <p className="text-sm font-medium mb-4 flex-1">
-                  Add tariff protection clauses to existing agreements
-                </p>
-                <div className="bg-white/20 p-3 rounded-lg text-sm">
-                  <div className="font-bold">Priority: Top 10 vendors</div>
-                  <div className="font-bold">Cost protection mechanisms</div>
+                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                  <div className="font-bold">Focus: Policy advocacy</div>
+                  <div className="font-bold">Trade relationship building</div>
                 </div>
               </div>
             </div>
           </div>
           
-          {/* Right Column - Supplier Engagement */}
-          <div className="flex flex-col">
-            <h2 className="text-2xl font-bold mb-6" style={{ color: colors.primary }}>Supplier Engagement</h2>
-            <div className="flex-1 flex flex-col justify-between space-y-4">
+          {/* Medium Term Column */}
+          <div className="flex flex-col overflow-hidden">
+            <h2 className="text-xl font-bold mb-4" style={{ color: colors.primary }}>Medium Term</h2>
+            <div className="flex-1 space-y-4 overflow-y-auto">
               
-              <div style={{ backgroundColor: colors.accent }} className="p-6 rounded-xl text-white shadow-lg flex-1 flex flex-col">
+              <div className="bg-indigo-700 p-6 rounded-xl text-white shadow-lg h-full">
                 <div className="flex items-center mb-4">
                   <div className="w-8 h-8 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-4">4</div>
-                  <h3 className="font-bold text-lg text-white">Alternative Sourcing</h3>
+                  <h3 className="font-bold text-lg text-white">Diversify Supplier Countries</h3>
                 </div>
-                <p className="text-sm font-medium mb-4 flex-1">
-                  Activate backup suppliers in Europe and Asia for critical items
+                <p className="text-sm font-medium mb-4">
+                  Establish procurement relationships across multiple regions to reduce geographic concentration risk
                 </p>
-                <div className="bg-white/20 p-3 rounded-lg text-sm">
-                  <div className="font-bold">Lead time: 60-90 days</div>
-                  <div className="font-bold">Focus: High-risk categories</div>
+                <div className="bg-white/20 p-4 rounded-lg">
+                  <div className="font-bold text-sm mb-2">Geographic Strategy</div>
+                  <div className="text-xs font-semibold">• Europe: 30% allocation</div>
+                  <div className="text-xs font-semibold">• Asia: 25% allocation</div>
+                  <div className="text-xs font-semibold">• Americas (non-US): 20% allocation</div>
+                  <div className="text-xs font-semibold">• Canada: 25% allocation</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Long Term Column */}
+          <div className="flex flex-col overflow-hidden">
+            <h2 className="text-xl font-bold mb-4" style={{ color: colors.primary }}>Long Term</h2>
+            <div className="flex-1 space-y-4 overflow-y-auto">
+              
+              <div className="bg-slate-700 p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-3">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-xs font-bold mr-3">5</div>
+                  <h3 className="font-bold text-sm text-white">Find Alternate Suppliers</h3>
+                </div>
+                <p className="text-xs font-medium mb-3">
+                  Identify and qualify alternative sources for most vulnerable parts
+                </p>
+                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                  <div className="font-bold">Timeline: 2-3 years</div>
+                  <div className="font-bold">Focus: Critical vulnerabilities</div>
                 </div>
               </div>
               
-              <div className="bg-purple-600 p-6 rounded-xl text-white shadow-lg flex-1 flex flex-col">
-                <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-4">5</div>
-                  <h3 className="font-bold text-lg text-white">Risk Communication</h3>
+              <div className="bg-stone-600 p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-3">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-xs font-bold mr-3">6</div>
+                  <h3 className="font-bold text-sm text-white">Increase Warehouse Space</h3>
                 </div>
-                <p className="text-sm font-medium mb-4 flex-1">
-                  Notify all US suppliers of potential supply disruptions
+                <p className="text-xs font-medium mb-3">
+                  Expand storage capacity to support higher safety stock levels
                 </p>
-                <div className="bg-white/20 p-3 rounded-lg text-sm">
-                  <div className="font-bold">Timeline: Within 2 weeks</div>
-                  <div className="font-bold">Stakeholder alignment</div>
+                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                  <div className="font-bold">Capacity: 50% increase</div>
+                  <div className="font-bold">Strategic locations</div>
                 </div>
               </div>
               
-              <div className="bg-orange-600 p-6 rounded-xl text-white shadow-lg flex-1 flex flex-col">
-                <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-4">6</div>
-                  <h3 className="font-bold text-lg text-white">Monitoring System</h3>
+              <div className="bg-emerald-800 p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-3">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-xs font-bold mr-3">7</div>
+                  <h3 className="font-bold text-sm text-white">Build Canadian Capacity</h3>
                 </div>
-                <p className="text-sm font-medium mb-4 flex-1">
-                  Implement daily tracking of tariff policy developments
+                <p className="text-xs font-medium mb-3">
+                  Develop domestic supply capacity for critical components
                 </p>
-                <div className="bg-white/20 p-3 rounded-lg text-sm">
-                  <div className="font-bold">Resource: 1 FTE analyst</div>
-                  <div className="font-bold">Real-time alerts</div>
+                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                  <div className="font-bold">Investment: Local suppliers</div>
+                  <div className="font-bold">Self-sufficiency goals</div>
                 </div>
               </div>
             </div>

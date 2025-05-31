@@ -121,10 +121,6 @@ const ExecutiveSummarySlide: React.FC<ExecutiveSummarySlideProps> = ({ colors, a
         {/* Bottom Message */}
         <div className="bg-gray-200 rounded-lg p-4">
           <div className="text-center">
-            <div className="text-base font-semibold text-gray-800 mb-1">
-              Switchgear proxy example strategies can be extrapolated to other vulnerable components
-            </div>
-            <div className="text-red-600 font-bold text-lg">Or</div>
             <div className="text-base font-semibold text-gray-800">
               Switchgear example informs wider strategy/tactics can extend to other components
             </div>

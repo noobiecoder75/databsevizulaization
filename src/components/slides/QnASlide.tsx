@@ -8,14 +8,16 @@ interface QnASlideProps {
 
 const QnASlide: React.FC<QnASlideProps> = ({ colors, analysisData }) => {
   return (
-    <div className="h-full p-8" style={{ backgroundColor: colors.light }}>
-      <div className="relative h-full flex flex-col justify-center items-center text-center">
-        <div className="mb-12">
-          <h1 className="text-6xl font-bold mb-6 text-gray-800">Questions & Discussion</h1>
-          <div className="w-32 h-1 bg-gray-600 mx-auto mb-8"></div>
-          <p className="text-3xl text-gray-600 mb-8 font-semibold">Thank you for your attention</p>
-        </div>
-        
+    <div className="h-full flex flex-col" style={{ backgroundColor: colors.light }}>
+      {/* Header */}
+      <div className="p-8 pb-4">
+        <h1 className="text-6xl font-bold text-gray-800">Questions & Discussion</h1>
+        <div className="w-32 h-1 bg-gray-600 mx-auto mt-4"></div>
+        <p className="text-3xl text-gray-600 mt-4 font-semibold text-center">Thank you for your attention</p>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 px-8 pb-4 flex justify-center items-center">
         <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 max-w-6xl shadow-lg border border-gray-200">
           <div className="grid grid-cols-2 gap-12 text-left">
             <div>
@@ -63,13 +65,20 @@ const QnASlide: React.FC<QnASlideProps> = ({ colors, analysisData }) => {
             </div>
           </div>
         </div>
-        
-        <div className="mt-12 text-lg text-gray-600 font-semibold">
-          Appendix: Detailed data analysis and assumptions available upon request
+      </div>
+      
+      {/* Footer */}
+      <div className="px-8 pb-4">
+        <div className="text-center">
+          <div className="text-lg text-gray-600 font-semibold mb-4">
+            Appendix: Detailed data analysis and assumptions available upon request
+          </div>
         </div>
-        
-        {/* Logo Space - Bottom Right */}
-        <div className="absolute bottom-8 right-8 w-28 h-20 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
+      </div>
+      
+      {/* Footer with Logo Space */}
+      <div className="flex justify-end p-8 pt-4">
+        <div className="w-32 h-16 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
           <span className="text-xs text-gray-500 text-center font-semibold">BC Hydro<br/>Logo</span>
         </div>
       </div>

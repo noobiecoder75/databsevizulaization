@@ -9,11 +9,14 @@ interface RecommendationsSlideProps {
 
 const RecommendationsSlide: React.FC<RecommendationsSlideProps> = ({ colors, analysisData }) => {
   return (
-    <div className="h-full p-8" style={{ backgroundColor: colors.light }}>
-      {/* Title */}
-      <h1 className="text-5xl font-bold mb-8 text-gray-800">Strategic Recommendations</h1>
+    <div className="h-full flex flex-col" style={{ backgroundColor: colors.light }}>
+      {/* Header */}
+      <div className="p-8 pb-4">
+        <h1 className="text-5xl font-bold text-gray-800">Strategic Recommendations</h1>
+      </div>
       
-      <div className="relative pb-24">
+      {/* Main Content */}
+      <div className="flex-1 px-8 pb-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6" style={{ height: 'calc(100% - 8rem)' }}>
           
           {/* Short-term Strategies */}
@@ -134,9 +137,11 @@ const RecommendationsSlide: React.FC<RecommendationsSlideProps> = ({ colors, ana
             </div>
           </div>
         </div>
-        
-        {/* Logo Space - Bottom Right */}
-        <div className="absolute bottom-0 right-0 w-28 h-20 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
+      </div>
+      
+      {/* Footer with Logo Space */}
+      <div className="flex justify-end p-8 pt-4">
+        <div className="w-32 h-16 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
           <span className="text-xs text-gray-500 text-center font-semibold">BC Hydro<br/>Logo</span>
         </div>
       </div>

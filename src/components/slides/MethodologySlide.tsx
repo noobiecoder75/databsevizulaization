@@ -12,72 +12,91 @@ const MethodologySlide: React.FC<MethodologySlideProps> = ({ colors, equipmentVe
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: colors.light }}>
       {/* Header */}
-      <div className="p-8 pb-4">
-        <h1 className="text-5xl font-bold text-gray-800">Objective & Methodology</h1>
+      <div className="px-8 py-6">
+        <h1 className="text-4xl font-bold text-gray-800">Objective & Methodology</h1>
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 px-8 pb-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-          <div>
-            <h2 className="text-3xl font-bold mb-6" style={{ color: colors.primary }}>
-              <Target className="w-8 h-8 inline mr-3" />
-              Analysis Goal
-            </h2>
-            <div style={{ backgroundColor: colors.primary }} className="p-6 rounded-xl text-white mb-6 shadow-lg">
-              <p className="text-lg font-semibold leading-relaxed">
-                Identify vulnerabilities in electrical equipment vendor relationships to protect BC Hydro against supply chain disruptions
-              </p>
+      <div className="flex-1 px-8 space-y-4 overflow-hidden">
+        {/* Data Preparation Section */}
+        <div>
+          <div className="flex items-center mb-3">
+            <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center mr-3">
+              <span className="text-white text-lg font-bold">1</span>
             </div>
-            
-            <h3 className="text-2xl font-bold mb-4" style={{ color: colors.secondary }}>Key Metrics</h3>
-            <div className="grid grid-cols-1 gap-3">
-              <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                <div className="font-bold text-blue-800 text-lg">• Annual spend analysis</div>
-              </div>
-              <div className="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
-                <div className="font-bold text-red-800 text-lg">• Risk assessment by category</div>
-              </div>
-              <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-                <div className="font-bold text-orange-800 text-lg">• 25% US tariff simulation</div>
-              </div>
+            <span className="text-xl font-semibold text-gray-700">Data Preparation</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div style={{ backgroundColor: colors.primary }} className="text-white p-3 rounded-lg">
+              <div className="font-bold text-sm mb-1">Identify & Isolate Categories</div>
+              <div className="text-xs">Categories relevant to physical supply chain</div>
+            </div>
+            <div style={{ backgroundColor: colors.primary }} className="text-white p-3 rounded-lg">
+              <div className="font-bold text-sm mb-1">Clean Data</div>
+              <div className="text-xs">Match category names across BC Hydro sheets and countries between BC Hydro and external data</div>
             </div>
           </div>
-          
-          <div>
-            <h2 className="text-3xl font-bold mb-6" style={{ color: colors.primary }}>
-              <Factory className="w-8 h-8 inline mr-3" />
-              Data Sources
-            </h2>
-            <div className="space-y-4">
-              <div style={{ backgroundColor: colors.info }} className="p-5 rounded-xl text-white shadow-md">
-                <h4 className="font-bold text-xl mb-2">Equipment Vendor Inventory</h4>
-                <p className="font-medium text-lg">Complete electrical equipment data</p>
-                <div className="font-bold mt-2 text-xl">{equipmentVendorsLength} vendor records</div>
-              </div>
-              
-              <div style={{ backgroundColor: colors.accent }} className="p-5 rounded-xl text-white shadow-md">
-                <h4 className="font-bold text-xl mb-2">Global Trade Data</h4>
-                <p className="font-medium text-lg">International supply chain mapping</p>
-                <div className="font-bold mt-2 text-xl">{tradeDataLength} trade records</div>
-              </div>
-              
-              <div style={{ backgroundColor: colors.warning }} className="p-5 rounded-xl text-white shadow-md">
-                <h4 className="font-bold text-xl mb-2">Electrical Equipment Only</h4>
-                <p className="font-bold">Transformers, switchgear, generators, batteries</p>
-              </div>
-              
-              <div style={{ backgroundColor: colors.secondary }} className="p-5 rounded-xl text-white shadow-md">
-                <h4 className="font-bold text-xl mb-2">Excludes Canadian Suppliers</h4>
-                <p className="font-bold">No domestic tariffs - international focus</p>
-              </div>
+        </div>
+
+        {/* Filtering & Analysis Section */}
+        <div>
+          <div className="flex items-center mb-3">
+            <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center mr-3">
+              <span className="text-white text-lg font-bold">2</span>
+            </div>
+            <span className="text-xl font-semibold text-gray-700">Filtering & Analysis</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div style={{ backgroundColor: colors.accent }} className="text-white p-3 rounded-lg">
+              <div className="font-bold text-sm mb-1">Create Filters</div>
+              <div className="text-xs">For risk categories, only consider supply chain categories (ignored services)</div>
+            </div>
+            <div style={{ backgroundColor: colors.accent }} className="text-white p-3 rounded-lg">
+              <div className="font-bold text-sm mb-1">Isolate Vendor Countries</div>
+              <div className="text-xs">For most vulnerable components and identify possible alternatives</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Risk Assessment Section */}
+        <div>
+          <div className="flex items-center mb-3">
+            <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center mr-3">
+              <span className="text-white text-lg font-bold">3</span>
+            </div>
+            <span className="text-xl font-semibold text-gray-700">Risk Assessment</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div style={{ backgroundColor: colors.info }} className="text-white p-3 rounded-lg">
+              <div className="font-bold text-sm mb-1">USA Tariffs</div>
+              <div className="text-xs">Create calculation to increase current tariffs to potential 25%</div>
+            </div>
+            <div style={{ backgroundColor: colors.info }} className="text-white p-3 rounded-lg">
+              <div className="font-bold text-sm mb-1">Review Tariff Risk</div>
+              <div className="text-xs">For potential supplier countries</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Visualization Section */}
+        <div>
+          <div className="flex items-center mb-3">
+            <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center mr-3">
+              <span className="text-white text-lg font-bold">4</span>
+            </div>
+            <span className="text-xl font-semibold text-gray-700">Visualization</span>
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            <div style={{ backgroundColor: colors.secondary }} className="text-white p-3 rounded-lg text-center">
+              <div className="font-bold text-sm mb-1">Built Dashboard</div>
+              <div className="text-xs">Built dashboard on top of datasets to extract insights</div>
             </div>
           </div>
         </div>
       </div>
       
       {/* Footer with Logo Space */}
-      <div className="flex justify-end p-8 pt-4">
+      <div className="flex justify-end px-8 py-4">
         <div className="w-32 h-16 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
           <span className="text-xs text-gray-500 text-center font-semibold">BC Hydro<br/>Logo</span>
         </div>

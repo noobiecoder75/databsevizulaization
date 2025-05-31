@@ -6,6 +6,7 @@ export { default as SpendByCategorySlide } from './SpendByCategorySlide';
 export { default as RiskMatrixSlide } from './RiskMatrixSlide';
 export { default as LeadTimeSlide } from './LeadTimeSlide';
 export { default as SpendByCountrySlide } from './SpendByCountrySlide';
+export { default as CountrySupplierSlide } from './CountrySupplierSlide';
 export { default as ImmediateActionsSlide } from './ImmediateActionsSlide';
 export { default as TariffSimulationSlide } from './TariffSimulationSlide';
 export { default as StrategicTransformationSlide } from './StrategicTransformationSlide';

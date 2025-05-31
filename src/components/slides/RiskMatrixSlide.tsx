@@ -12,21 +12,33 @@ interface RiskMatrixSlideProps {
 const CustomLabel = ({ x, y, payload }: any) => {
   if (!payload) return null;
   
-  const categoryName = payload.category.length > 8 ? 
-    payload.category.substring(0, 8) + '...' : 
+  const categoryName = payload.category.length > 12 ? 
+    payload.category.substring(0, 12) + '...' : 
     payload.category;
   
   return (
-    <text
-      x={x}
-      y={y - 10}
-      textAnchor="middle"
-      fontSize="8"
-      fill="#374151"
-      fontWeight="600"
-    >
-      {categoryName}
-    </text>
+    <g>
+      <text
+        x={x}
+        y={y - 15}
+        textAnchor="middle"
+        fontSize="7"
+        fill="#374151"
+        fontWeight="600"
+      >
+        {categoryName}
+      </text>
+      <text
+        x={x}
+        y={y - 5}
+        textAnchor="middle"
+        fontSize="6"
+        fill="#6b7280"
+        fontWeight="500"
+      >
+        ({payload.vendorCount} vendors)
+      </text>
+    </g>
   );
 };
 
@@ -112,46 +124,46 @@ const RiskMatrixSlide: React.FC<RiskMatrixSlideProps> = ({ colors, analysisData 
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ backgroundColor: colors.light }}>
+    <div className="h-full flex flex-col max-h-screen overflow-hidden" style={{ backgroundColor: colors.light }}>
       {/* Header */}
-      <div className="p-8 pb-4">
-        <h1 className="text-5xl font-bold text-gray-800">Comprehensive Risk Matrix</h1>
+      <div className="p-4 pb-2">
+        <h1 className="text-3xl font-bold text-gray-800">Comprehensive Risk Matrix</h1>
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 px-8 pb-4">
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-full">
-          <div className="xl:col-span-2 flex flex-col">
-            <h2 className="text-2xl font-bold mb-4" style={{ color: colors.primary }}>All Categories - Vendor Count vs Total Spend</h2>
-            <div className="flex-1 bg-white rounded-xl shadow-lg p-4" style={{ minHeight: '400px' }}>
+      <div className="flex-1 px-4 pb-2 min-h-0">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 h-full">
+          <div className="xl:col-span-2 flex flex-col min-h-0">
+            <h2 className="text-lg font-bold mb-2" style={{ color: colors.primary }}>All Categories - Vendor Count vs Total Spend</h2>
+            <div className="flex-1 bg-white rounded-lg shadow-lg p-3 min-h-0">
               <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart data={comprehensiveRiskData} margin={{ bottom: 60, left: 60, right: 20, top: 20 }}>
+                <ScatterChart data={comprehensiveRiskData} margin={{ bottom: 40, left: 40, right: 15, top: 15 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis 
                     dataKey="vendorCount" 
                     type="number"
                     domain={['dataMin - 1', 'dataMax + 2']}
                     name="Vendor Count"
-                    fontSize={10}
-                    tick={{ fontSize: 10 }}
-                    label={{ value: 'Number of Vendors', position: 'insideBottom', offset: -10, style: { textAnchor: 'middle', fontSize: '10px', fill: '#374151' } }}
+                    fontSize={9}
+                    tick={{ fontSize: 9 }}
+                    label={{ value: 'Number of Vendors', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fontSize: '9px', fill: '#374151' } }}
                   />
                   <YAxis 
                     dataKey="totalSpend" 
                     type="number"
                     name="Total Spend"
                     tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
-                    fontSize={10}
-                    tick={{ fontSize: 10 }}
-                    label={{ value: 'Annual Spend (Millions)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: '10px', fill: '#374151' } }}
+                    fontSize={9}
+                    tick={{ fontSize: 9 }}
+                    label={{ value: 'Annual Spend (Millions)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: '9px', fill: '#374151' } }}
                   />
                   <Tooltip 
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="bg-white p-4 border rounded-lg shadow-lg text-sm max-w-60 border-gray-200">
-                            <p className="font-bold text-gray-800 mb-2">
+                          <div className="bg-white p-3 border rounded-lg shadow-lg text-xs max-w-52 border-gray-200">
+                            <p className="font-bold text-gray-800 mb-1">
                               {data.category}
                             </p>
                             <div className="space-y-1">
@@ -178,57 +190,57 @@ const RiskMatrixSlide: React.FC<RiskMatrixSlideProps> = ({ colors, analysisData 
             </div>
           </div>
           
-          <div className="flex flex-col overflow-hidden">
-            <h2 className="text-xl font-bold mb-4" style={{ color: colors.primary }}>Risk Legend</h2>
-            <div className="flex-1 space-y-4 overflow-y-auto">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border-l-4 border-red-600">
+          <div className="flex flex-col overflow-hidden min-h-0">
+            <h2 className="text-lg font-bold mb-2" style={{ color: colors.primary }}>Risk Legend</h2>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between p-2 bg-red-50 rounded-lg border-l-4 border-red-600">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-600 rounded-full"></div>
-                    <span className="font-bold text-red-800 text-sm">Critical</span>
+                    <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                    <span className="font-bold text-red-800 text-xs">Critical</span>
                   </div>
-                  <span className="text-red-700 font-bold text-sm">{riskCounts.Critical}</span>
+                  <span className="text-red-700 font-bold text-xs">{riskCounts.Critical}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border-l-4 border-orange-600">
+                <div className="flex items-center justify-between p-2 bg-orange-50 rounded-lg border-l-4 border-orange-600">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
-                    <span className="font-bold text-orange-800 text-sm">High</span>
+                    <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
+                    <span className="font-bold text-orange-800 text-xs">High</span>
                   </div>
-                  <span className="text-orange-700 font-bold text-sm">{riskCounts.High}</span>
+                  <span className="text-orange-700 font-bold text-xs">{riskCounts.High}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-600">
+                <div className="flex items-center justify-between p-2 bg-yellow-50 rounded-lg border-l-4 border-yellow-600">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-yellow-600 rounded-full"></div>
-                    <span className="font-bold text-yellow-800 text-sm">Medium</span>
+                    <div className="w-2 h-2 bg-yellow-600 rounded-full"></div>
+                    <span className="font-bold text-yellow-800 text-xs">Medium</span>
                   </div>
-                  <span className="text-yellow-700 font-bold text-sm">{riskCounts.Medium}</span>
+                  <span className="text-yellow-700 font-bold text-xs">{riskCounts.Medium}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border-l-4 border-green-600">
+                <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg border-l-4 border-green-600">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-600 rounded-full"></div>
-                    <span className="font-bold text-green-800 text-sm">Low</span>
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                    <span className="font-bold text-green-800 text-xs">Low</span>
                   </div>
-                  <span className="text-green-700 font-bold text-sm">{riskCounts.Low}</span>
+                  <span className="text-green-700 font-bold text-xs">{riskCounts.Low}</span>
                 </div>
               </div>
               
-              <div style={{ backgroundColor: colors.info }} className="p-4 rounded-xl text-white shadow-lg">
-                <h3 className="font-bold text-lg mb-2">Portfolio Overview</h3>
-                <div className="text-2xl font-bold">
+              <div style={{ backgroundColor: colors.info }} className="p-3 rounded-lg text-white shadow-lg">
+                <h3 className="font-bold text-sm mb-1">Portfolio Overview</h3>
+                <div className="text-xl font-bold">
                   {comprehensiveRiskData.length}
                 </div>
-                <div className="text-sm font-semibold opacity-90">Total categories</div>
+                <div className="text-xs font-semibold opacity-90">Total categories</div>
                 <div className="text-xs opacity-75">All procurement types</div>
-                <div className="border-t border-blue-400 mt-3 pt-2">
-                  <div className="text-sm font-bold">
+                <div className="border-t border-blue-400 mt-2 pt-1">
+                  <div className="text-xs font-bold">
                     {comprehensiveRiskData.reduce((sum, d) => sum + d.vendorCount, 0)} Total Vendors
                   </div>
                 </div>
               </div>
               
-              <div style={{ backgroundColor: colors.accent }} className="p-4 rounded-xl text-white shadow-lg">
-                <h3 className="font-bold text-lg mb-3">Interpretation</h3>
-                <div className="text-sm space-y-2">
+              <div style={{ backgroundColor: colors.accent }} className="p-3 rounded-lg text-white shadow-lg">
+                <h3 className="font-bold text-sm mb-2">Interpretation</h3>
+                <div className="text-xs space-y-1">
                   <div>• <strong>High spend + Few vendors</strong> = Higher risk</div>
                   <div>• <strong>Many vendors</strong> = More supplier options</div>
                   <div>• <strong>Concentrated spending</strong> = Supply vulnerability</div>
@@ -241,8 +253,8 @@ const RiskMatrixSlide: React.FC<RiskMatrixSlideProps> = ({ colors, analysisData 
       </div>
       
       {/* Footer with Logo Space */}
-      <div className="flex justify-end p-8 pt-4">
-        <div className="w-32 h-16 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
+      <div className="flex justify-end p-4 pt-2">
+        <div className="w-24 h-12 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
           <span className="text-xs text-gray-500 text-center font-semibold">BC Hydro<br/>Logo</span>
         </div>
       </div>

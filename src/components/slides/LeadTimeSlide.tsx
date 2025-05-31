@@ -18,20 +18,20 @@ const LeadTimeSlide: React.FC<LeadTimeSlideProps> = ({ colors, analysisData }) =
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ backgroundColor: colors.light }}>
+    <div className="h-full flex flex-col max-h-screen overflow-hidden" style={{ backgroundColor: colors.light }}>
       {/* Header */}
-      <div className="p-8 pb-4">
-        <h1 className="text-5xl font-bold text-gray-800">Lead Time vs Safety Stock</h1>
+      <div className="p-4 pb-2">
+        <h1 className="text-3xl font-bold text-gray-800">Lead Time vs Safety Stock</h1>
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 px-8 pb-4">
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-full">
-          <div className="xl:col-span-2 flex flex-col">
-            <h2 className="text-2xl font-bold mb-4" style={{ color: colors.primary }}>Delivery Risk Assessment</h2>
-            <div className="flex-1 bg-white rounded-xl shadow-lg p-4" style={{ minHeight: '400px' }}>
+      <div className="flex-1 px-4 pb-2 min-h-0">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 h-full">
+          <div className="xl:col-span-2 flex flex-col min-h-0">
+            <h2 className="text-lg font-bold mb-2" style={{ color: colors.primary }}>Delivery Risk Assessment</h2>
+            <div className="flex-1 bg-white rounded-lg shadow-lg p-3 min-h-0">
               <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart data={analysisData?.leadTimeData || []} margin={{ bottom: 40, left: 20, right: 20, top: 20 }}>
+                <ScatterChart data={analysisData?.leadTimeData || []} margin={{ bottom: 30, left: 15, right: 15, top: 15 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="leadTime" 
@@ -39,16 +39,18 @@ const LeadTimeSlide: React.FC<LeadTimeSlideProps> = ({ colors, analysisData }) =
                     name="Lead Time"
                     domain={[0, 'dataMax']}
                     tickFormatter={(value) => `${value}d`}
-                    fontSize={10}
-                    tick={{ fontSize: 10 }}
+                    fontSize={9}
+                    tick={{ fontSize: 9 }}
+                    label={{ value: 'Lead Time (days)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fontSize: '9px', fill: '#374151' } }}
                   />
                   <YAxis 
                     dataKey="safetyStock" 
                     type="number"
                     name="Safety Stock"
                     domain={[0, 'dataMax']}
-                    fontSize={10}
-                    tick={{ fontSize: 10 }}
+                    fontSize={9}
+                    tick={{ fontSize: 9 }}
+                    label={{ value: 'Safety Stock', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: '9px', fill: '#374151' } }}
                   />
                   <Tooltip 
                     content={({ active, payload }) => {
@@ -79,38 +81,38 @@ const LeadTimeSlide: React.FC<LeadTimeSlideProps> = ({ colors, analysisData }) =
             </div>
           </div>
           
-          <div className="flex flex-col overflow-hidden">
-            <h2 className="text-xl font-bold mb-4" style={{ color: colors.primary }}>Risk Analysis</h2>
-            <div className="flex-1 space-y-4 overflow-y-auto">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg border-l-4 border-red-600">
-                  <div className="w-3 h-3 bg-red-600 rounded-full"></div>
-                  <span className="font-bold text-red-800 text-sm">High Risk</span>
+          <div className="flex flex-col overflow-hidden min-h-0">
+            <h2 className="text-lg font-bold mb-2" style={{ color: colors.primary }}>Risk Analysis</h2>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 p-2 bg-red-50 rounded-lg border-l-4 border-red-600">
+                  <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                  <span className="font-bold text-red-800 text-xs">High Risk</span>
                 </div>
-                <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-600">
-                  <div className="w-3 h-3 bg-yellow-600 rounded-full"></div>
-                  <span className="font-bold text-yellow-800 text-sm">Medium Risk</span>
+                <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded-lg border-l-4 border-yellow-600">
+                  <div className="w-2 h-2 bg-yellow-600 rounded-full"></div>
+                  <span className="font-bold text-yellow-800 text-xs">Medium Risk</span>
                 </div>
-                <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg border-l-4 border-green-600">
-                  <div className="w-3 h-3 bg-green-600 rounded-full"></div>
-                  <span className="font-bold text-green-800 text-sm">Low Risk</span>
+                <div className="flex items-center gap-2 p-2 bg-green-50 rounded-lg border-l-4 border-green-600">
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  <span className="font-bold text-green-800 text-xs">Low Risk</span>
                 </div>
               </div>
               
-              <div style={{ backgroundColor: colors.secondary }} className="p-4 rounded-xl text-white shadow-lg">
-                <h3 className="font-bold text-lg mb-3">High Risk Vendors</h3>
-                <div className="text-2xl font-bold">
+              <div style={{ backgroundColor: colors.secondary }} className="p-3 rounded-lg text-white shadow-lg">
+                <h3 className="font-bold text-sm mb-2">High Risk Vendors</h3>
+                <div className="text-xl font-bold">
                   {analysisData?.leadTimeData.filter(d => d.riskLevel === 'High').length || 0}
                 </div>
-                <div className="text-sm font-semibold opacity-90">
+                <div className="text-xs font-semibold opacity-90">
                   Long lead times + Low stock
                 </div>
               </div>
               
-              <div style={{ backgroundColor: colors.info }} className="p-4 rounded-xl text-white shadow-lg">
-                <h3 className="font-bold text-lg mb-2">Average Metrics</h3>
+              <div style={{ backgroundColor: colors.info }} className="p-3 rounded-lg text-white shadow-lg">
+                <h3 className="font-bold text-sm mb-1">Average Metrics</h3>
                 <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs">
                     <span>Avg Lead Time:</span>
                     <span className="font-bold">
                       {analysisData ? Math.round(
@@ -119,7 +121,7 @@ const LeadTimeSlide: React.FC<LeadTimeSlideProps> = ({ colors, analysisData }) =
                       ) : 0} days
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs">
                     <span>Avg Safety Stock:</span>
                     <span className="font-bold">
                       {analysisData ? Math.round(
@@ -131,9 +133,9 @@ const LeadTimeSlide: React.FC<LeadTimeSlideProps> = ({ colors, analysisData }) =
                 </div>
               </div>
               
-              <div style={{ backgroundColor: colors.warning }} className="p-4 rounded-xl text-white shadow-lg flex-1">
-                <h3 className="font-bold text-lg mb-2">Risk Zones</h3>
-                <div className="text-sm space-y-1">
+              <div style={{ backgroundColor: colors.warning }} className="p-3 rounded-lg text-white shadow-lg flex-1">
+                <h3 className="font-bold text-sm mb-1">Risk Zones</h3>
+                <div className="text-xs space-y-1">
                   <div>• <strong>Top-right:</strong> Long + High stock</div>
                   <div>• <strong>Top-left:</strong> Short + High stock</div>
                   <div>• <strong>Bottom-right:</strong> Long + Low stock ⚠️</div>
@@ -146,8 +148,8 @@ const LeadTimeSlide: React.FC<LeadTimeSlideProps> = ({ colors, analysisData }) =
       </div>
       
       {/* Footer with Logo Space */}
-      <div className="flex justify-end p-8 pt-4">
-        <div className="w-32 h-16 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
+      <div className="flex justify-end p-4 pt-2">
+        <div className="w-24 h-12 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
           <span className="text-xs text-gray-500 text-center font-semibold">BC Hydro<br/>Logo</span>
         </div>
       </div>

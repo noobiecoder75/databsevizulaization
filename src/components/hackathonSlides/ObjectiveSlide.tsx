@@ -23,10 +23,10 @@ const ObjectiveSlide: React.FC<ObjectiveSlideProps> = ({ colors }) => {
 
       <div className="relative z-0">
         <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold mb-4" style={{ color: colors.primary }}>
+          <h1 className="text-6xl font-bold mb-4" style={{ color: colors.navy }}>
             Project Objective
           </h1>
-          <div className="w-32 h-1 mx-auto rounded-full" style={{ backgroundColor: colors.primary }}></div>
+          <div className="w-32 h-1 mx-auto rounded-full" style={{ backgroundColor: colors.navy }}></div>
           <p className="text-xl text-gray-600 mt-4 max-w-3xl mx-auto">
             Strategic analysis to strengthen BC Hydro's supply chain resilience
           </p>
@@ -38,11 +38,11 @@ const ObjectiveSlide: React.FC<ObjectiveSlideProps> = ({ colors }) => {
             <div className="text-center mb-8">
               <div 
                 className="w-24 h-24 mx-auto mb-6 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: `${colors.primary}20` }}
+                style={{ backgroundColor: `${colors.navy}20` }}
               >
-                <Target className="w-16 h-16" style={{ color: colors.primary }} />
+                <Target className="w-16 h-16" style={{ color: colors.navy }} />
               </div>
-              <h2 className="text-5xl font-bold mb-4" style={{ color: colors.primary }}>
+              <h2 className="text-5xl font-bold mb-4" style={{ color: colors.navy }}>
                 Identify Supply Chain Vulnerabilities & Strategic Solutions
               </h2>
               <p className="text-xl text-gray-600 max-w-4xl mx-auto">
@@ -62,26 +62,26 @@ const ObjectiveSlide: React.FC<ObjectiveSlideProps> = ({ colors }) => {
                 <div className="flex items-center mb-6">
                   <div 
                     className="p-4 rounded-2xl mr-4"
-                    style={{ backgroundColor: `${colors.accent}20` }}
+                    style={{ backgroundColor: `${colors.darkGreen}20` }}
                   >
-                    <HelpCircle className="w-8 h-8" style={{ color: colors.accent }} />
+                    <HelpCircle className="w-8 h-8" style={{ color: colors.darkGreen }} />
                   </div>
-                  <h3 className="text-3xl font-bold" style={{ color: colors.accent }}>
+                  <h3 className="text-3xl font-bold" style={{ color: colors.darkGreen }}>
                     Key Questions
                   </h3>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3 p-4 bg-green-50 rounded-lg">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.accent }}></div>
+                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.darkGreen }}></div>
                     <span className="text-lg font-medium text-gray-700">Which categories are most vulnerable?</span>
                   </div>
                   <div className="flex items-start space-x-3 p-4 bg-green-50 rounded-lg">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.accent }}></div>
+                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.darkGreen }}></div>
                     <span className="text-lg font-medium text-gray-700">What are the tariff impact scenarios?</span>
                   </div>
                   <div className="flex items-start space-x-3 p-4 bg-green-50 rounded-lg">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.accent }}></div>
+                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.darkGreen }}></div>
                     <span className="text-lg font-medium text-gray-700">Where are diversification opportunities?</span>
                   </div>
                 </div>
@@ -104,26 +104,26 @@ const ObjectiveSlide: React.FC<ObjectiveSlideProps> = ({ colors }) => {
                 <div className="flex items-center mb-6">
                   <div 
                     className="p-4 rounded-2xl mr-4"
-                    style={{ backgroundColor: `${colors.info}20` }}
+                    style={{ backgroundColor: `${colors.teal}20` }}
                   >
-                    <Lightbulb className="w-8 h-8" style={{ color: colors.info }} />
+                    <Lightbulb className="w-8 h-8" style={{ color: colors.teal }} />
                   </div>
-                  <h3 className="text-3xl font-bold" style={{ color: colors.primary }}>
+                  <h3 className="text-3xl font-bold" style={{ color: colors.navy }}>
                     Expected Outcomes
                   </h3>
                 </div>
                 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.info }}></div>
+                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.teal }}></div>
                     <span className="text-lg font-medium text-gray-700">Risk assessment framework</span>
                   </div>
                   <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.info }}></div>
+                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.teal }}></div>
                     <span className="text-lg font-medium text-gray-700">Strategic recommendations</span>
                   </div>
                   <div className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
-                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.info }}></div>
+                    <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: colors.teal }}></div>
                     <span className="text-lg font-medium text-gray-700">Actionable insights</span>
                   </div>
                 </div>
@@ -142,7 +142,7 @@ const ObjectiveSlide: React.FC<ObjectiveSlideProps> = ({ colors }) => {
           <div className="mt-12 text-center">
             <div className="inline-flex items-center space-x-4 bg-white/80 backdrop-blur-sm rounded-full px-8 py-4 shadow-lg border border-white/50">
               <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse"></div>
-              <span className="text-lg font-semibold" style={{ color: colors.primary }}>
+              <span className="text-lg font-semibold" style={{ color: colors.navy }}>
                 Data-Driven Approach to Supply Chain Transformation
               </span>
             </div>

@@ -12,6 +12,7 @@ import {
   RiskMatrixSlide,
   LeadTimeSlide,
   SpendByCountrySlide,
+  CountrySupplierSlide,
   ImmediateActionsSlide,
   TariffSimulationSlide,
   StrategicTransformationSlide,
@@ -262,6 +263,10 @@ const BCHydroTier2SlideshowRefactored = () => {
     {
       id: 'spend-by-category',
       content: <SpendByCategorySlide colors={colors} analysisData={analysisData} />
+    },
+    {
+      id: 'country-supplier-analysis',
+      content: <CountrySupplierSlide colors={colors} analysisData={analysisData} />
     },
     {
       id: 'risk-matrix',

@@ -7,7 +7,7 @@ import { TradeDataVisualizations } from './components/TradeDataVisualizations';
 import { VendorTradeAnalysis } from './components/VendorTradeAnalysis';
 import { SupplyChainRiskDashboard } from './components/SupplyChainRiskDashboard';
 import BCHydroHackathonSlideshow from './components/BCHydroHackathonSlideshow';
-import BCHydroTier2SupplierSlideshow from './components/BCHydroTier2SupplierSlideshow';
+import BCHydroTier2SlideshowRefactored from './components/BCHydroTier2SlideshowRefactored';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'overview' | 'visualizations' | 'trade' | 'trade-viz' | 'vendor-trade' | 'risk-dashboard' | 'slideshow' | 'tier2-slideshow'>('overview');
@@ -137,7 +137,7 @@ function App() {
             <BCHydroHackathonSlideshow />
           )}
           {activeTab === 'tier2-slideshow' && (
-            <BCHydroTier2SupplierSlideshow />
+            <BCHydroTier2SlideshowRefactored />
           )}
         </div>
       </div>

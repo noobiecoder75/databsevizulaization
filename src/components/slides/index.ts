@@ -9,6 +9,7 @@ export { default as SpendByCountrySlide } from './SpendByCountrySlide';
 export { default as ImmediateActionsSlide } from './ImmediateActionsSlide';
 export { default as TopVendorsAtRiskSlide } from './TopVendorsAtRiskSlide';
 export { default as TariffSimulationSlide } from './TariffSimulationSlide';
+export { default as StrategicTransformationSlide } from './StrategicTransformationSlide';
 export { default as RecommendationsSlide } from './RecommendationsSlide';
 export { default as QnASlide } from './QnASlide';
 

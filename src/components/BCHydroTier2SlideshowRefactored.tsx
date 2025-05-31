@@ -15,6 +15,7 @@ import {
   ImmediateActionsSlide,
   TopVendorsAtRiskSlide,
   TariffSimulationSlide,
+  StrategicTransformationSlide,
   RecommendationsSlide,
   QnASlide,
   Colors,
@@ -287,6 +288,10 @@ const BCHydroTier2SlideshowRefactored = () => {
     {
       id: 'tariff-simulation',
       content: <TariffSimulationSlide colors={colors} analysisData={analysisData} />
+    },
+    {
+      id: 'strategic-transformation',
+      content: <StrategicTransformationSlide colors={colors} analysisData={analysisData} />
     },
     {
       id: 'recommendations',

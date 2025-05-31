@@ -9,53 +9,55 @@ interface RecommendationsSlideProps {
 
 const RecommendationsSlide: React.FC<RecommendationsSlideProps> = ({ colors, analysisData }) => {
   return (
-    <div className="h-full p-4 lg:p-6" style={{ backgroundColor: colors.dark }}>
-      <h1 className="text-2xl lg:text-4xl font-black mb-3 text-center text-white">STRATEGIC RECOMMENDATIONS</h1>
-      <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-2xl" style={{ height: 'calc(100% - 4rem)' }}>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4" style={{ height: 'calc(100% - 5rem)' }}>
+    <div className="h-full p-8" style={{ backgroundColor: colors.light }}>
+      {/* Title */}
+      <h1 className="text-5xl font-bold mb-8 text-gray-800">Strategic Recommendations</h1>
+      
+      <div className="relative pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6" style={{ height: 'calc(100% - 8rem)' }}>
           
           {/* Short-term Strategies */}
           <div className="flex flex-col overflow-hidden">
-            <h2 className="text-lg lg:text-xl font-black mb-3" style={{ color: colors.danger }}>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: colors.secondary }}>
               <Target className="w-6 h-6 inline mr-2" />
-              SHORT-TERM (6-18 MONTHS)
+              Short-Term (6-18 Months)
             </h2>
-            <div className="flex-1 space-y-2 overflow-y-auto">
-              <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl text-white shadow-lg">
-                <div className="flex items-center mb-1">
-                  <div className="w-5 h-5 bg-white text-red-600 rounded-full flex items-center justify-center text-xs font-black mr-2">1</div>
-                  <h3 className="font-black text-sm">IMMEDIATE BUFFER INCREASE</h3>
+            <div className="flex-1 space-y-3 overflow-y-auto">
+              <div style={{ backgroundColor: colors.secondary }} className="p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-2">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-3">1</div>
+                  <h3 className="font-bold text-lg">Immediate Buffer Increase</h3>
                 </div>
-                <p className="text-xs font-bold mb-2">
+                <p className="text-sm font-medium mb-3">
                   Increase safety stock by 75% for all US-sourced equipment to minimize tariff impact
                 </p>
-                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                <div className="bg-white/20 p-2 rounded-lg text-sm">
                   <div className="font-bold">Investment: $2-3M | Risk reduction: 60%</div>
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-orange-500 to-orange-700 p-3 rounded-xl text-white shadow-lg">
-                <div className="flex items-center mb-1">
-                  <div className="w-5 h-5 bg-white text-orange-600 rounded-full flex items-center justify-center text-xs font-black mr-2">2</div>
-                  <h3 className="font-black text-sm">SUPPLIER DIVERSIFICATION</h3>
+              <div style={{ backgroundColor: colors.warning }} className="p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-2">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-3">2</div>
+                  <h3 className="font-bold text-lg">Supplier Diversification</h3>
                 </div>
-                <p className="text-xs font-bold mb-2">
+                <p className="text-sm font-medium mb-3">
                   Activate backup suppliers in Europe and Asia for top 5 vulnerable categories
                 </p>
-                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                <div className="bg-white/20 p-2 rounded-lg text-sm">
                   <div className="font-bold">Timeline: 12 months | Cost: $500K setup</div>
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-yellow-500 to-yellow-700 p-3 rounded-xl text-white shadow-lg">
-                <div className="flex items-center mb-1">
-                  <div className="w-5 h-5 bg-white text-yellow-600 rounded-full flex items-center justify-center text-xs font-black mr-2">3</div>
-                  <h3 className="font-black text-sm">CONTRACT RENEGOTIATION</h3>
+              <div style={{ backgroundColor: colors.info }} className="p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-2">
+                  <div className="w-6 h-6 bg-white text-gray-800 rounded-full flex items-center justify-center text-sm font-bold mr-3">3</div>
+                  <h3 className="font-bold text-lg">Contract Renegotiation</h3>
                 </div>
-                <p className="text-xs font-bold mb-2">
+                <p className="text-sm font-medium mb-3">
                   Add tariff protection clauses to all major supplier agreements
                 </p>
-                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                <div className="bg-white/20 p-2 rounded-lg text-sm">
                   <div className="font-bold">Top 15 vendors | Savings: $1-2M</div>
                 </div>
               </div>
@@ -64,48 +66,48 @@ const RecommendationsSlide: React.FC<RecommendationsSlideProps> = ({ colors, ana
           
           {/* Long-term Strategies */}
           <div className="flex flex-col overflow-hidden">
-            <h2 className="text-lg lg:text-xl font-black mb-3" style={{ color: colors.accent }}>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: colors.accent }}>
               <TrendingUp className="w-6 h-6 inline mr-2" />
-              LONG-TERM (2-5 YEARS)
+              Long-Term (2-5 Years)
             </h2>
-            <div className="flex-1 space-y-2 overflow-y-auto">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-700 p-3 rounded-xl text-white shadow-lg">
-                <div className="flex items-center mb-1">
-                  <ShieldCheck className="w-4 h-4 mr-2" />
-                  <h3 className="font-black text-sm">DOMESTIC MANUFACTURING</h3>
+            <div className="flex-1 space-y-3 overflow-y-auto">
+              <div style={{ backgroundColor: colors.primary }} className="p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-2">
+                  <ShieldCheck className="w-5 h-5 mr-2" />
+                  <h3 className="font-bold text-lg">Domestic Manufacturing</h3>
                 </div>
-                <p className="text-xs font-bold mb-2">
+                <p className="text-sm font-medium mb-3">
                   Partner with Canadian manufacturers for domestic electrical equipment production
                 </p>
-                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                <div className="bg-white/20 p-2 rounded-lg text-sm">
                   <div className="font-bold">Investment: $10-15M | Timeline: 3-5 years</div>
                   <div className="font-bold">Risk reduction: 80% | Savings: $5M/year</div>
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-green-500 to-green-700 p-3 rounded-xl text-white shadow-lg">
-                <div className="flex items-center mb-1">
-                  <Users className="w-4 h-4 mr-2" />
-                  <h3 className="font-black text-sm">STRATEGIC PARTNERSHIPS</h3>
+              <div style={{ backgroundColor: colors.accent }} className="p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-2">
+                  <Users className="w-5 h-5 mr-2" />
+                  <h3 className="font-bold text-lg">Strategic Partnerships</h3>
                 </div>
-                <p className="text-xs font-bold mb-2">
+                <p className="text-sm font-medium mb-3">
                   Establish joint ventures with stable international suppliers in non-tariff regions
                 </p>
-                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                <div className="bg-white/20 p-2 rounded-lg text-sm">
                   <div className="font-bold">Focus: Europe, South Korea, Japan</div>
                   <div className="font-bold">Guaranteed supply + Cost stability</div>
                 </div>
               </div>
               
-              <div className="bg-gradient-to-br from-purple-500 to-purple-700 p-3 rounded-xl text-white shadow-lg">
-                <div className="flex items-center mb-1">
-                  <Target className="w-4 h-4 mr-2" />
-                  <h3 className="font-black text-sm">TECHNOLOGY INVESTMENT</h3>
+              <div className="bg-purple-600 p-4 rounded-xl text-white shadow-lg">
+                <div className="flex items-center mb-2">
+                  <Target className="w-5 h-5 mr-2" />
+                  <h3 className="font-bold text-lg">Technology Investment</h3>
                 </div>
-                <p className="text-xs font-bold mb-2">
+                <p className="text-sm font-medium mb-3">
                   Invest in advanced inventory management and predictive analytics
                 </p>
-                <div className="bg-white/20 p-2 rounded-lg text-xs">
+                <div className="bg-white/20 p-2 rounded-lg text-sm">
                   <div className="font-bold">ROI: 300% over 5 years | Efficiency: 25%</div>
                 </div>
               </div>
@@ -114,23 +116,28 @@ const RecommendationsSlide: React.FC<RecommendationsSlideProps> = ({ colors, ana
         </div>
         
         {/* Bottom Impact Summary */}
-        <div className="bg-gradient-to-r from-gray-900 to-black rounded-2xl p-3 text-center shadow-2xl">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 text-white">
+        <div className="bg-gray-800 rounded-xl p-4 text-center shadow-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-white">
             <div>
-              <div className="text-lg font-black text-red-300">
+              <div className="text-2xl font-bold text-red-300">
                 ${analysisData ? (analysisData.usaTariffImpact / 1000000).toFixed(1) : '0'}M
               </div>
-              <div className="text-xs font-bold">ANNUAL RISK EXPOSURE</div>
+              <div className="text-sm font-semibold">Annual Risk Exposure</div>
             </div>
             <div>
-              <div className="text-lg font-black text-green-300">80%</div>
-              <div className="text-xs font-bold">RISK REDUCTION TARGET</div>
+              <div className="text-2xl font-bold text-green-300">80%</div>
+              <div className="text-sm font-semibold">Risk Reduction Target</div>
             </div>
             <div>
-              <div className="text-lg font-black text-blue-300">3-5 YEARS</div>
-              <div className="text-xs font-bold">FULL IMPLEMENTATION</div>
+              <div className="text-2xl font-bold text-blue-300">3-5 Years</div>
+              <div className="text-sm font-semibold">Full Implementation</div>
             </div>
           </div>
+        </div>
+        
+        {/* Logo Space - Bottom Right */}
+        <div className="absolute bottom-0 right-0 w-28 h-20 border-2 border-dashed border-gray-400 rounded-lg flex items-center justify-center">
+          <span className="text-xs text-gray-500 text-center font-semibold">BC Hydro<br/>Logo</span>
         </div>
       </div>
     </div>

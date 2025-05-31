@@ -91,8 +91,7 @@ const BCHydroTier2SlideshowRefactored = () => {
 
     const topCategories = Object.entries(categorySpend)
       .map(([category, spend]) => ({ category, spend }))
-      .sort((a, b) => b.spend - a.spend)
-      .slice(0, 10);
+      .sort((a, b) => b.spend - a.spend);
 
     // Calculate total spend
     const totalSpend = equipmentVendors.reduce((sum, v) => sum + Number(v.annual_spend || 0), 0);
@@ -145,12 +144,12 @@ const BCHydroTier2SlideshowRefactored = () => {
     const topCountries = Object.entries(countrySpend)
       .map(([country, spend]) => ({ country, spend }))
       .sort((a, b) => b.spend - a.spend)
-      .slice(0, 10);
+      .slice(0, 15);
 
     // Calculate top vendors
     const topVendors = [...equipmentVendors]
       .sort((a, b) => Number(b.annual_spend || 0) - Number(a.annual_spend || 0))
-      .slice(0, 10)
+      .slice(0, 15)
       .map(vendor => ({
         vendor_number: vendor.vendor_number,
         category: vendor.category || 'Unknown',
@@ -207,7 +206,7 @@ const BCHydroTier2SlideshowRefactored = () => {
         vendors: usVendors.filter(v => v.category === category).length
       }))
       .sort((a, b) => b.tariffCost - a.tariffCost)
-      .slice(0, 10);
+      .slice(0, 15);
 
     const usaTariffImpact = tariffData.reduce((sum, item) => sum + item.tariffCost, 0);
 

@@ -1,20 +1,141 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Map, BarChart3, TrendingUp, Users, Shield, Target, Database, CheckCircle } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useVendorRiskInventory } from '../hooks/useVendorRiskInventory';
 
 const BCHydroHackathonSlideshow = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // BC Hydro brand colors
+  const { data: rawVendorData } = useVendorRiskInventory();
+
   const colors = {
     darkGreen: '#006A38',
     navy: '#004F6C',
     lightGrey: '#EBE9E8',
     teal: '#10A3C8',
-    lightGreen: '#50B848'
+    lightGreen: '#50B848',
+    chartRed: '#EF4444',
+    chartOrange: '#F59E0B',
+    chartYellow: '#FBBF24',
+    chartBlue: '#3B82F6',
+    chartPurple: '#8B5CF6',
   };
 
+  const CHART_COLORS = [colors.teal, colors.lightGreen, colors.chartOrange, colors.chartBlue, colors.chartPurple, colors.chartRed];
+
+  const vendorData = useMemo(() => rawVendorData || [], [rawVendorData]);
+
+  const categoryVulnerabilityData = useMemo(() => {
+    if (!vendorData.length) return [];
+    const analysis = vendorData.reduce((acc, vendor) => {
+      const category = vendor.category || 'Unknown';
+      const leadTime = Number(vendor.average_lead_time_days || 0);
+      const spend = Number(vendor.annual_spend || 0);
+      const supplierId = String(vendor.vendor_number || `unknown_supplier_${category}`);
+
+      if (!acc[category]) {
+        acc[category] = { totalLeadTime: 0, totalSpend: 0, supplierSet: new Set<string>(), count: 0 };
+      }
+      acc[category].totalLeadTime += leadTime;
+      acc[category].totalSpend += spend;
+      acc[category].supplierSet.add(supplierId);
+      acc[category].count++;
+      return acc;
+    }, {} as Record<string, { totalLeadTime: number; totalSpend: number; supplierSet: Set<string>; count: number }>);
+
+    return Object.entries(analysis).map(([name, data]) => {
+      const avgLeadTime = data.count > 0 ? data.totalLeadTime / data.count : 0;
+      const numSuppliers = data.supplierSet.size;
+      const score = (avgLeadTime / 10) + (5 / (numSuppliers || 1)) * 5 + (data.totalSpend / 1000000);
+      return {
+        name: name.length > 15 ? name.substring(0,15) + "..." : name,
+        avgLeadTime,
+        numSuppliers,
+        totalSpend: data.totalSpend,
+        vulnerabilityScore: score
+      };
+    }).sort((a, b) => b.vulnerabilityScore - a.vulnerabilityScore).slice(0, 5);
+  }, [vendorData]);
+
+  const tariffImpactData = useMemo(() => {
+    if (!vendorData.length) return [];
+    const usSourcedSpend = vendorData.reduce((acc, vendor) => {
+      if (vendor.country_of_origin === 'USA') {
+        const category = vendor.category || 'Unknown';
+        const spend = Number(vendor.annual_spend || 0);
+        if (!acc[category]) {
+          acc[category] = { totalSpend: 0, affectedSpend: 0 };
+        }
+        acc[category].totalSpend += spend;
+        acc[category].affectedSpend += spend * 0.25;
+      }
+      return acc;
+    }, {} as Record<string, { totalSpend: number; affectedSpend: number }>);
+
+    return Object.entries(usSourcedSpend)
+      .map(([name, data]) => ({
+        name: name.length > 15 ? name.substring(0,15) + "..." : name,
+        affectedSpend: data.affectedSpend,
+        usTotalSpend: data.totalSpend
+      }))
+      .filter(item => item.affectedSpend > 0)
+      .sort((a,b) => b.affectedSpend - a.affectedSpend)
+      .slice(0,5);
+  }, [vendorData]);
+  
+  const globalAlternativesChartData = useMemo(() => {
+    if (!vendorData.length) return [];
+    const criticalCategories = ['Switchgear', 'Transformers', 'Generators'];
+    const sourcing: { category: string; country: string; spend: number }[] = [];
+
+    vendorData.forEach(vendor => {
+      const category = vendor.category || 'Unknown';
+      if (criticalCategories.includes(category) && vendor.country_of_origin && vendor.country_of_origin !== 'USA') {
+        sourcing.push({
+          category,
+          country: vendor.country_of_origin,
+          spend: Number(vendor.annual_spend || 0)
+        });
+      }
+    });
+    
+    const aggregated = sourcing.reduce((acc, item) => {
+        const key = `${item.category}_${item.country}`;
+        if (!acc[key]) {
+            acc[key] = { category: item.category, country: item.country, totalSpend: 0 };
+        }
+        acc[key].totalSpend += item.spend;
+        return acc;
+    }, {} as Record<string, { category: string; country: string; totalSpend: number }>);
+
+    const chartFormattedData = Object.values(aggregated).reduce((acc, item) => {
+        let countryEntry = acc.find(c => c.country === item.country);
+        if (!countryEntry) {
+            countryEntry = { country: item.country };
+            acc.push(countryEntry);
+        }
+        countryEntry[item.category] = (countryEntry[item.category] || 0) + item.totalSpend;
+        return acc;
+    }, [] as Array<Record<string, any>>);
+
+    return chartFormattedData.sort((a,b) => Object.values(b).reduce((s:number,v:any) => s + (typeof v === 'number' ? v : 0),0) - Object.values(a).reduce((s:number,v:any) => s + (typeof v === 'number' ? v : 0),0)).slice(0,5);
+}, [vendorData]);
+
+
+  const mockLpiData = useMemo(() => [
+    { country: 'Germany', lpiScore: 4.2, color: colors.teal, rankText: 'Excellent' },
+    { country: 'Netherlands', lpiScore: 4.1, color: colors.teal, rankText: 'Excellent' },
+    { country: 'Japan', lpiScore: 4.0, color: colors.lightGreen, rankText: 'Very Good' },
+    { country: 'Sweden', lpiScore: 3.9, color: colors.lightGreen, rankText: 'Very Good' },
+    { country: 'South Korea', lpiScore: 3.6, color: colors.chartYellow, rankText: 'Good' },
+    { country: 'Canada', lpiScore: 3.7, color: colors.chartYellow, rankText: 'Good' },
+  ].sort((a,b) => b.lpiScore - a.lpiScore), [colors]);
+
+  if (vendorData.length === 0 && !rawVendorData) {
+      return <div className="h-full w-full flex justify-center items-center text-white text-2xl bg-gray-800">Loading Presentation Data...</div>;
+  }
+  
   const slides = [
-    // Slide 1: Title Slide
     {
       id: 'title',
       content: (
@@ -35,8 +156,6 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 2: BC Hydro Context
     {
       id: 'context',
       content: (
@@ -71,8 +190,6 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 3: Supply Chain Challenges
     {
       id: 'challenges',
       content: (
@@ -110,8 +227,6 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 4: Project Objective
     {
       id: 'objective',
       content: (
@@ -144,61 +259,52 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 5: Category Vulnerability Analysis
     {
       id: 'vulnerability',
       content: (
         <div className="h-full p-12" style={{ backgroundColor: colors.navy }}>
-          <h1 className="text-5xl font-bold mb-8 text-white">Category Vulnerability Analysis</h1>
-          <div className="bg-white rounded-lg p-8 shadow-lg h-3/4">
-            <h2 className="text-3xl font-semibold mb-6" style={{ color: colors.darkGreen }}>Most Vulnerable Categories</h2>
-            <div className="grid grid-cols-2 gap-8 h-5/6">
-              <div>
-                <div className="h-full bg-gray-50 rounded p-6">
-                  <BarChart3 className="w-12 h-12 mb-4" style={{ color: colors.teal }} />
-                  <h3 className="text-2xl font-semibold mb-4">Risk Factors</h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Switchgear</span>
-                      <div className="w-32 bg-gray-200 rounded-full h-4">
-                        <div className="h-4 rounded-full" style={{ backgroundColor: '#EF4444', width: '95%' }}></div>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Transformers</span>
-                      <div className="w-32 bg-gray-200 rounded-full h-4">
-                        <div className="h-4 rounded-full" style={{ backgroundColor: '#F59E0B', width: '85%' }}></div>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Generators</span>
-                      <div className="w-32 bg-gray-200 rounded-full h-4">
-                        <div className="h-4 rounded-full" style={{ backgroundColor: '#F59E0B', width: '75%' }}></div>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Cables</span>
-                      <div className="w-32 bg-gray-200 rounded-full h-4">
-                        <div className="h-4 rounded-full" style={{ backgroundColor: colors.lightGreen, width: '45%' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <h1 className="text-5xl font-bold mb-6 text-white">Category Vulnerability Analysis</h1>
+          <div className="bg-white rounded-lg p-6 shadow-lg h-[85%] flex flex-col">
+            <h2 className="text-3xl font-semibold mb-4" style={{ color: colors.darkGreen }}>Most Vulnerable Categories</h2>
+            <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 h-[400px] md:h-auto">
+              {vendorData.length === 0 && rawVendorData ? <div className="flex items-center justify-center h-full text-gray-500">No vendor data processed.</div> :
+                categoryVulnerabilityData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={categoryVulnerabilityData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3}/>
+                      <XAxis type="number" domain={[0, 'dataMax + 20']} stroke="#718096"/>
+                      <YAxis dataKey="name" type="category" width={100} stroke="#718096"/>
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '8px', borderColor: colors.teal }}
+                        formatter={(value: number, name: string) => {
+                            if (name === "Vulnerability Score") return [value.toFixed(2), "Score"];
+                            if (name === "Avg. Lead Time (Days)") return [value.toFixed(0) + " days", "Avg Lead Time"];
+                            if (name === "Number of Suppliers") return [value, "Suppliers"];
+                            return [value, name];
+                        }}
+                      />
+                      <Legend wrapperStyle={{paddingTop: "10px"}}/>
+                      <Bar dataKey="vulnerabilityScore" name="Vulnerability Score" fill={colors.chartRed} background={{ fill: '#eee', opacity: 0.5 }} radius={[0, 5, 5, 0]} barSize={20}/>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-center text-gray-500">Insufficient data for vulnerability chart or no vulnerable categories found.</p>
+                )}
               </div>
-              <div>
-                <div className="h-full bg-gray-50 rounded p-6">
-                  <h3 className="text-2xl font-semibold mb-4">Key Insights</h3>
-                  <div className="space-y-4 text-lg">
-                    <div className="p-4 bg-red-50 border-l-4 border-red-500">
-                      <strong>Switchgear:</strong> Most vulnerable due to limited sourcing options and high lead times
+              <div className="md:col-span-1 flex flex-col justify-center">
+                <div className="bg-gray-50 rounded p-4 space-y-3">
+                  <h3 className="text-xl font-semibold mb-2" style={{color: colors.navy}}>Key Insights</h3>
+                  <div className="p-3 bg-red-50 border-l-4 border-red-500">
+                    <strong style={{color: colors.chartRed}}>High Vulnerability:</strong> Categories with high scores indicate greater risk from lead times, supplier concentration, and spend.
+                  </div>
+                  {categoryVulnerabilityData.length > 0 && (
+                    <div className="p-3 bg-yellow-50 border-l-4 border-yellow-500">
+                        <strong>Focus on:</strong> {categoryVulnerabilityData[0]?.name} appears most vulnerable.
                     </div>
-                    <div className="p-4 bg-yellow-50 border-l-4 border-yellow-500">
-                      <strong>Lead Times:</strong> Critical components have 12-18 month lead times
-                    </div>
-                    <div className="p-4 bg-blue-50 border-l-4 border-blue-500">
-                      <strong>Concentration:</strong> 70% of spend concentrated in 3 categories
-                    </div>
+                  )}
+                  <div className="p-3 bg-blue-50 border-l-4 border-blue-500">
+                    <strong>Factors:</strong> Longer lead times, fewer suppliers, and high spend elevate risk.
                   </div>
                 </div>
               </div>
@@ -207,60 +313,44 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 6: Tariff Scenario
     {
       id: 'tariff',
       content: (
         <div className="h-full p-12" style={{ backgroundColor: colors.lightGrey }}>
-          <h1 className="text-5xl font-bold mb-8" style={{ color: colors.darkGreen }}>What if USA Tariffs Rise to 25%?</h1>
-          <div className="bg-white rounded-lg p-8 shadow-lg h-3/4">
-            <div className="grid grid-cols-2 gap-8 h-full">
-              <div>
-                <h2 className="text-3xl font-semibold mb-6" style={{ color: colors.navy }}>Impact by Category</h2>
-                <div className="space-y-4">
-                  <div className="p-4 border rounded">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold">Switchgear</span>
-                      <span className="text-red-600 font-bold">$120M affected</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-4">
-                      <div className="h-4 bg-red-500 rounded-full" style={{ width: '85%' }}></div>
-                    </div>
-                    <span className="text-sm text-gray-600">85% US-sourced</span>
-                  </div>
-                  <div className="p-4 border rounded">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold">Transformers</span>
-                      <span className="text-orange-600 font-bold">$80M affected</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-4">
-                      <div className="h-4 bg-orange-500 rounded-full" style={{ width: '65%' }}></div>
-                    </div>
-                    <span className="text-sm text-gray-600">65% US-sourced</span>
-                  </div>
-                  <div className="p-4 border rounded">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold">Generators</span>
-                      <span className="text-yellow-600 font-bold">$45M affected</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-4">
-                      <div className="h-4 bg-yellow-500 rounded-full" style={{ width: '55%' }}></div>
-                    </div>
-                    <span className="text-sm text-gray-600">55% US-sourced</span>
-                  </div>
-                </div>
+          <h1 className="text-5xl font-bold mb-6" style={{ color: colors.darkGreen }}>What if USA Tariffs Rise to 25%?</h1>
+          <div className="bg-white rounded-lg p-6 shadow-lg h-[85%] flex flex-col">
+            <h2 className="text-3xl font-semibold mb-4" style={{ color: colors.navy }}>Projected Impact by Category (Top 5)</h2>
+            <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 h-[400px] md:h-auto">
+              {vendorData.length === 0 && rawVendorData ? <div className="flex items-center justify-center h-full text-gray-500">No vendor data processed.</div> :
+                tariffImpactData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={tariffImpactData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+                      <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3}/>
+                      <XAxis dataKey="name" angle={-25} textAnchor="end" height={60} stroke="#718096"/>
+                      <YAxis label={{ value: 'Affected Spend ($)', angle: -90, position: 'insideLeft', fill: '#4A5568' }} stroke="#718096" tickFormatter={(tick) => `$${(tick/1000000).toFixed(0)}M`}/>
+                      <Tooltip
+                        formatter={(value: number) => [`$${(value / 1000000).toFixed(2)}M`, "Affected Spend"]}
+                        contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '8px', borderColor: colors.chartOrange }}
+                      />
+                      <Legend verticalAlign="top" wrapperStyle={{paddingBottom: "10px"}}/>
+                      <Bar dataKey="affectedSpend" name="25% Tariff Impact" fill={colors.chartOrange} radius={[5, 5, 0, 0]} barSize={30}/>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-center text-gray-500">No US-sourced spend data found for tariff impact chart.</p>
+                )}
               </div>
-              <div>
-                <div className="h-full bg-red-50 rounded p-6 border-2 border-red-200">
-                  <h3 className="text-2xl font-semibold mb-4 text-red-800">Critical Alert</h3>
-                  <div className="space-y-4 text-lg">
-                    <p><strong>Total Impact:</strong> $245M+ in additional costs</p>
-                    <p><strong>Timeline:</strong> Immediate effect on new contracts</p>
-                    <p><strong>Risk Level:</strong> HIGH - Supply shock potential</p>
-                    <div className="mt-8 p-4 bg-white rounded border-2 border-red-300">
-                      <h4 className="font-semibold text-red-800 mb-2">Urgent Action Required:</h4>
-                      <p>Diversification strategy needed immediately to mitigate tariff exposure</p>
+              <div className="md:col-span-1 flex flex-col justify-center">
+                <div className="h-full bg-red-50 rounded p-4 border-2 border-red-200 flex flex-col justify-center">
+                  <h3 className="text-xl font-semibold mb-3 text-red-800">Critical Alert</h3>
+                  <div className="space-y-3 text-md">
+                    <p><strong>Total Potential Impact (Top 5 shown):</strong> Significant increase in costs.</p>
+                     <p><strong>Timeline:</strong> Immediate effect on new contracts.</p>
+                    <p><strong>Risk Level:</strong> HIGH - Supply shock potential.</p>
+                    <div className="mt-4 p-3 bg-white rounded border-2 border-red-300">
+                      <h4 className="font-semibold text-red-700 mb-1">Urgent Action Required:</h4>
+                      <p className="text-sm">Diversification strategy needed immediately to mitigate tariff exposure for key categories.</p>
                     </div>
                   </div>
                 </div>
@@ -270,110 +360,99 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 7: Global Supply Alternatives
     {
-      id: 'alternatives',
-      content: (
-        <div className="h-full p-12" style={{ backgroundColor: colors.navy }}>
-          <h1 className="text-5xl font-bold mb-8 text-white">Global Supply Alternatives</h1>
-          <div className="bg-white rounded-lg p-8 shadow-lg h-3/4">
-            <h2 className="text-3xl font-semibold mb-6" style={{ color: colors.darkGreen }}>Diversification Opportunities</h2>
-            <div className="grid grid-cols-3 gap-6 h-5/6">
-              <div className="bg-green-50 rounded p-6 border-2 border-green-200">
-                <h3 className="text-xl font-semibold mb-4 text-green-800">Low Risk - Multiple Options</h3>
-                <ul className="space-y-2">
-                  <li>• Cables & Conductors</li>
-                  <li>• Basic Electrical Components</li>
-                  <li>• Standard Hardware</li>
-                </ul>
-                <div className="mt-4 p-3 bg-white rounded">
-                  <p className="text-sm"><strong>Countries:</strong> Germany, Japan, South Korea, Canada</p>
+        id: 'alternatives',
+        content: (
+          <div className="h-full p-12" style={{ backgroundColor: colors.navy }}>
+            <h1 className="text-5xl font-bold mb-6 text-white">Global Supply Alternatives</h1>
+            <div className="bg-white rounded-lg p-6 shadow-lg h-[85%]">
+              <h2 className="text-3xl font-semibold mb-4" style={{ color: colors.darkGreen }}>Diversification Opportunities</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                <div className="h-[400px] lg:h-full">
+                  <h3 className="text-xl font-semibold mb-2" style={{ color: colors.navy }}>Current Non-US Sourcing Spend (Critical Categories)</h3>
+                  {vendorData.length === 0 && rawVendorData ? <div className="flex items-center justify-center h-full text-gray-500">No vendor data processed.</div> :
+                  globalAlternativesChartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="90%">
+                       <BarChart data={globalAlternativesChartData} layout="vertical" margin={{top: 5, right:30, left:80, bottom:20}}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" tickFormatter={(tick) => `$${(tick/1000000).toFixed(1)}M`} />
+                        <YAxis dataKey="country" type="category" width={80} />
+                        <Tooltip formatter={(value:number, name:string) => [`$${(value/1000000).toFixed(2)}M`, name]} />
+                        <Legend />
+                        {['Switchgear', 'Transformers', 'Generators'].map((category, index) => (
+                             <Bar key={category} dataKey={category} name={category} stackId="a" fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        ))}
+                       </BarChart>
+                    </ResponsiveContainer>
+                  ) : <p className="text-center text-gray-500">No significant non-US sourcing data for critical items to display.</p>}
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2" style={{ color: colors.navy }}>Potential Sourcing Countries by LPI</h3>
+                   <div className="overflow-x-auto bg-gray-50 p-3 rounded-md">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LPI Score</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {mockLpiData.map((country) => (
+                          <tr key={country.country}>
+                            <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{country.country}</td>
+                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{country.lpiScore.toFixed(1)}</td>
+                            <td className="px-4 py-2 whitespace-nowrap text-sm">
+                              <span style={{ backgroundColor: country.color, color: 'white' }} className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                {country.rankText}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="mt-3 text-sm text-gray-600">Consider countries with high LPI for reliable logistics. Further analysis needed for specific category capabilities and tariffs.</p>
                 </div>
               </div>
-              <div className="bg-yellow-50 rounded p-6 border-2 border-yellow-200">
-                <h3 className="text-xl font-semibold mb-4 text-yellow-800">Medium Risk - Some Options</h3>
-                <ul className="space-y-2">
-                  <li>• Power Transformers</li>
-                  <li>• Control Systems</li>
-                  <li>• Protective Equipment</li>
-                </ul>
-                <div className="mt-4 p-3 bg-white rounded">
-                  <p className="text-sm"><strong>Countries:</strong> Germany, Switzerland, Sweden</p>
-                </div>
-              </div>
-              <div className="bg-red-50 rounded p-6 border-2 border-red-200">
-                <h3 className="text-xl font-semibold mb-4 text-red-800">High Risk - Limited Options</h3>
-                <ul className="space-y-2">
-                  <li>• Specialized Switchgear</li>
-                  <li>• Large Generators</li>
-                  <li>• Custom Transformers</li>
-                </ul>
-                <div className="mt-4 p-3 bg-white rounded">
-                  <p className="text-sm"><strong>Action:</strong> Build strategic partnerships</p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 p-4 bg-blue-50 rounded">
-              <p className="text-lg text-center"><strong>Key Finding:</strong> Most components have viable international alternatives, except for specialized equipment</p>
             </div>
           </div>
-        </div>
-      )
-    },
-
-    // Slide 8: Strategic Supplier Selection
+        )
+      },
     {
       id: 'selection',
       content: (
         <div className="h-full p-12" style={{ backgroundColor: colors.lightGrey }}>
-          <h1 className="text-5xl font-bold mb-8" style={{ color: colors.darkGreen }}>Strategic Supplier Selection</h1>
-          <div className="bg-white rounded-lg p-8 shadow-lg h-3/4">
-            <h2 className="text-3xl font-semibold mb-6" style={{ color: colors.navy }}>Evaluation Framework</h2>
-            <div className="grid grid-cols-2 gap-8 h-5/6">
-              <div>
-                <h3 className="text-2xl font-semibold mb-4" style={{ color: colors.teal }}>Key Metrics</h3>
-                <div className="space-y-4">
-                  <div className="p-4 border-l-4 border-blue-500 bg-blue-50">
-                    <h4 className="font-semibold">Logistics Performance Index (LPI)</h4>
-                    <p className="text-sm">Customs, infrastructure, timeliness</p>
-                  </div>
-                  <div className="p-4 border-l-4 border-green-500 bg-green-50">
-                    <h4 className="font-semibold">Ease of Doing Business</h4>
-                    <p className="text-sm">Regulatory environment, trade facilitation</p>
-                  </div>
-                  <div className="p-4 border-l-4 border-purple-500 bg-purple-50">
-                    <h4 className="font-semibold">Trade Relationship</h4>
-                    <p className="text-sm">Tariff rates, trade agreements</p>
-                  </div>
-                  <div className="p-4 border-l-4 border-orange-500 bg-orange-50">
-                    <h4 className="font-semibold">Political Stability</h4>
-                    <p className="text-sm">Governance, risk indicators</p>
-                  </div>
-                </div>
+          <h1 className="text-5xl font-bold mb-6" style={{ color: colors.darkGreen }}>Strategic Supplier Selection</h1>
+          <div className="bg-white rounded-lg p-6 shadow-lg h-[85%] flex flex-col">
+            <h2 className="text-3xl font-semibold mb-4" style={{ color: colors.navy }}>Evaluation Framework: LPI Focus</h2>
+            <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 h-[400px] md:h-auto">
+                    <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={mockLpiData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.3} />
+                        <XAxis type="number" domain={[0, 5]} />
+                        <YAxis dataKey="country" type="category" width={100} />
+                        <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '8px', borderColor: colors.teal }} formatter={(value: number) => [value.toFixed(1), 'LPI Score']}/>
+                        <Bar dataKey="lpiScore" name="LPI Score" radius={[0, 5, 5, 0]} barSize={25}>
+                        {mockLpiData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color || CHART_COLORS[index % CHART_COLORS.length]} />
+                        ))}
+                        </Bar>
+                    </BarChart>
+                    </ResponsiveContainer>
               </div>
-              <div>
-                <h3 className="text-2xl font-semibold mb-4" style={{ color: colors.teal }}>Recommended Countries</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-green-100 rounded">
-                    <span className="font-semibold">Germany</span>
-                    <span className="text-green-700">LPI: 4.2 | Excellent</span>
+              <div className="md:col-span-1 flex flex-col justify-center">
+                <div className="bg-gray-50 rounded p-4 space-y-3">
+                  <h3 className="text-xl font-semibold mb-2" style={{color: colors.navy}}>Key Considerations</h3>
+                  <div className="p-3 bg-blue-50 border-l-4 border-blue-500">
+                    <strong style={{color: colors.chartBlue}}>Logistics Performance (LPI):</strong> Higher LPI indicates better customs, infrastructure, and timeliness.
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-green-100 rounded">
-                    <span className="font-semibold">Netherlands</span>
-                    <span className="text-green-700">LPI: 4.1 | Excellent</span>
+                  <div className="p-3 bg-green-50 border-l-4 border-green-500">
+                    <strong>Ease of Doing Business:</strong> (Data previously available) Important for regulatory environment and trade facilitation. (Note: Currently using LPI as primary focus).
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-blue-100 rounded">
-                    <span className="font-semibold">Japan</span>
-                    <span className="text-blue-700">LPI: 4.0 | Very Good</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-blue-100 rounded">
-                    <span className="font-semibold">Sweden</span>
-                    <span className="text-blue-700">LPI: 3.9 | Very Good</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-yellow-100 rounded">
-                    <span className="font-semibold">South Korea</span>
-                    <span className="text-yellow-700">LPI: 3.6 | Good</span>
+                  <div className="p-3 bg-yellow-50 border-l-4 border-yellow-500">
+                    <strong>Other Factors:</strong> Also consider trade relationships, political stability, and specific vendor capabilities.
                   </div>
                 </div>
               </div>
@@ -382,9 +461,7 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 9: Data & Methodology
-    {
+     {
       id: 'methodology',
       content: (
         <div className="h-full p-12" style={{ backgroundColor: colors.navy }}>
@@ -401,15 +478,15 @@ const BCHydroHackathonSlideshow = () => {
                   </div>
                   <div className="p-4 border rounded">
                     <h4 className="font-semibold">WTO Tariff Database</h4>
-                    <p className="text-sm text-gray-600">HS code-specific tariff rates</p>
+                    <p className="text-sm text-gray-600">HS code-specific tariff rates (Conceptual)</p>
                   </div>
                   <div className="p-4 border rounded">
                     <h4 className="font-semibold">World Bank LPI</h4>
-                    <p className="text-sm text-gray-600">Logistics performance indicators</p>
+                    <p className="text-sm text-gray-600">Logistics performance indicators (Conceptual)</p>
                   </div>
                   <div className="p-4 border rounded">
                     <h4 className="font-semibold">UN Comtrade</h4>
-                    <p className="text-sm text-gray-600">International trade statistics</p>
+                    <p className="text-sm text-gray-600">International trade statistics (Conceptual)</p>
                   </div>
                 </div>
               </div>
@@ -459,8 +536,6 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 10: Strategic Response - Short Term
     {
       id: 'short-term',
       content: (
@@ -519,8 +594,6 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 11: Strategic Response - Long Term
     {
       id: 'long-term',
       content: (
@@ -575,8 +648,6 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 12: Conclusion
     {
       id: 'conclusion',
       content: (
@@ -619,8 +690,6 @@ const BCHydroHackathonSlideshow = () => {
         </div>
       )
     },
-
-    // Slide 13: Thank You
     {
       id: 'thank-you',
       content: (
@@ -657,43 +726,34 @@ const BCHydroHackathonSlideshow = () => {
 
   return (
     <div className="relative w-full h-screen bg-gray-900">
-      {/* Main slide content */}
       <div className="w-full h-full">
         {slides[currentSlide].content}
       </div>
-
-      {/* Navigation controls */}
       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 bg-black bg-opacity-50 rounded-lg p-4">
         <button
           onClick={prevSlide}
           className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-          disabled={currentSlide === 0}
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
-        
         <div className="flex space-x-2">
           {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
               className={`w-3 h-3 rounded-full transition-colors ${
-                index === currentSlide ? 'bg-white' : 'bg-gray-400'
+                index === currentSlide ? 'bg-white' : 'bg-gray-400 hover:bg-gray-300'
               }`}
             />
           ))}
         </div>
-        
         <button
           onClick={nextSlide}
           className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-          disabled={currentSlide === slides.length - 1}
         >
           <ChevronRight className="w-6 h-6" />
         </button>
       </div>
-
-      {/* Slide counter */}
       <div className="absolute top-6 right-6 bg-black bg-opacity-50 text-white px-4 py-2 rounded">
         {currentSlide + 1} / {slides.length}
       </div>

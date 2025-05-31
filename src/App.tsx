@@ -7,9 +7,10 @@ import { TradeDataVisualizations } from './components/TradeDataVisualizations';
 import { VendorTradeAnalysis } from './components/VendorTradeAnalysis';
 import { SupplyChainRiskDashboard } from './components/SupplyChainRiskDashboard';
 import BCHydroHackathonSlideshow from './components/BCHydroHackathonSlideshow';
+import BCHydroTier2SupplierSlideshow from './components/BCHydroTier2SupplierSlideshow';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'visualizations' | 'trade' | 'trade-viz' | 'vendor-trade' | 'risk-dashboard' | 'slideshow'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'visualizations' | 'trade' | 'trade-viz' | 'vendor-trade' | 'risk-dashboard' | 'slideshow' | 'tier2-slideshow'>('overview');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -96,6 +97,16 @@ function App() {
             >
               Hackathon Slideshow
             </button>
+            <button
+              onClick={() => setActiveTab('tier2-slideshow')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'tier2-slideshow'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Tier 2 Supplier Analysis
+            </button>
           </nav>
         </div>
         
@@ -124,6 +135,9 @@ function App() {
           )}
           {activeTab === 'slideshow' && (
             <BCHydroHackathonSlideshow />
+          )}
+          {activeTab === 'tier2-slideshow' && (
+            <BCHydroTier2SupplierSlideshow />
           )}
         </div>
       </div>

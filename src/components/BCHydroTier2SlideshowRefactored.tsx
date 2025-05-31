@@ -321,46 +321,52 @@ const BCHydroTier2SlideshowRefactored = () => {
   }
 
   return (
-    <div className="h-screen bg-gray-900 relative overflow-hidden">
-      {/* Slide Content */}
-      <div className="h-full">
-        {slides[currentSlide].content}
-      </div>
-
-      {/* Navigation Controls */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-6">
+    <div className="h-screen bg-gray-900 flex overflow-hidden">
+      {/* Navigation Sidebar */}
+      <div className="w-20 bg-gray-800 flex flex-col items-center py-6 space-y-4 border-r border-gray-700">
+        {/* Previous Button */}
         <button
           onClick={prevSlide}
-          className="p-4 bg-white/90 backdrop-blur-sm rounded-full text-gray-800 hover:bg-white hover:shadow-lg transition-all duration-300 border border-white/50 shadow-md"
+          className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-all duration-300 shadow-md"
         >
-          <ChevronLeft className="w-7 h-7" />
+          <ChevronLeft className="w-5 h-5" />
         </button>
         
-        <div className="flex space-x-3 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-white/50">
-          {slides.map((_, index) => (
+        {/* Slide Navigation Buttons */}
+        <div className="flex flex-col space-y-2 max-h-96 overflow-y-auto">
+          {slides.map((slide, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-4 h-4 rounded-full transition-all duration-300 border ${
+              className={`w-10 h-10 rounded-lg transition-all duration-300 text-xs font-bold ${
                 index === currentSlide 
-                  ? 'bg-blue-600 border-blue-700 shadow-md' 
-                  : 'bg-white/60 border-gray-300 hover:bg-blue-200 hover:border-blue-400'
+                  ? 'bg-blue-600 text-white shadow-md' 
+                  : 'bg-gray-700 text-gray-300 hover:bg-blue-500 hover:text-white'
               }`}
-            />
+              title={`Slide ${index + 1}`}
+            >
+              {index + 1}
+            </button>
           ))}
         </div>
         
+        {/* Next Button */}
         <button
           onClick={nextSlide}
-          className="p-4 bg-white/90 backdrop-blur-sm rounded-full text-gray-800 hover:bg-white hover:shadow-lg transition-all duration-300 border border-white/50 shadow-md"
+          className="p-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-all duration-300 shadow-md"
         >
-          <ChevronRight className="w-7 h-7" />
+          <ChevronRight className="w-5 h-5" />
         </button>
+        
+        {/* Slide Counter */}
+        <div className="mt-auto bg-gray-700 rounded-lg px-3 py-2 text-white text-xs font-semibold">
+          {currentSlide + 1}/{slides.length}
+        </div>
       </div>
 
-      {/* Slide Counter */}
-      <div className="absolute top-8 right-8 bg-white/90 backdrop-blur-sm rounded-lg px-6 py-3 text-gray-800 font-semibold shadow-lg border border-white/50">
-        {currentSlide + 1} / {slides.length}
+      {/* Slide Content Area */}
+      <div className="flex-1 h-full">
+        {slides[currentSlide].content}
       </div>
     </div>
   );

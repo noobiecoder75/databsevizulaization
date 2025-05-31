@@ -13,7 +13,6 @@ import {
   LeadTimeSlide,
   SpendByCountrySlide,
   ImmediateActionsSlide,
-  TopVendorsAtRiskSlide,
   TariffSimulationSlide,
   StrategicTransformationSlide,
   RecommendationsSlide,
@@ -278,16 +277,12 @@ const BCHydroTier2SlideshowRefactored = () => {
       content: <SpendByCountrySlide colors={colors} analysisData={analysisData} />
     },
     {
-      id: 'immediate-actions',
-      content: <ImmediateActionsSlide colors={colors} analysisData={analysisData} />
-    },
-    {
-      id: 'top-vendors-at-risk',
-      content: <TopVendorsAtRiskSlide colors={colors} analysisData={analysisData} />
-    },
-    {
       id: 'tariff-simulation',
       content: <TariffSimulationSlide colors={colors} analysisData={analysisData} />
+    },
+    {
+      id: 'immediate-actions',
+      content: <ImmediateActionsSlide colors={colors} analysisData={analysisData} />
     },
     {
       id: 'strategic-transformation',

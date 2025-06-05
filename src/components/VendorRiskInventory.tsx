@@ -1,10 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useVendorRiskInventory } from '../hooks/useVendorRiskInventory';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const VendorRiskInventory: React.FC = () => {
   const { data, loading, error } = useVendorRiskInventory();
   const [searchTerm, setSearchTerm] = useState('');
   const [riskFilter, setRiskFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   // Get unique vendors by vendor_number, prioritizing highest risk level
   const uniqueVendors = data.reduce((acc, vendor) => {
@@ -62,6 +65,61 @@ export const VendorRiskInventory: React.FC = () => {
       return matchesSearch && matchesRisk;
     });
   }, [uniqueVendors, searchTerm, riskFilter]);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, riskFilter, pageSize]);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredData.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
+
+  // Pagination helper functions
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages);
+    } else {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
 
   const getRiskColor = (vendor: any) => {
     const riskLevel = vendor.risk_tolerance_category || 'Unknown';
@@ -146,8 +204,8 @@ export const VendorRiskInventory: React.FC = () => {
           </div>
         )}
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        {/* Filters and Page Size */}
+        <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <input
               type="text"
@@ -157,9 +215,9 @@ export const VendorRiskInventory: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div>
+          <div className="flex gap-4">
             <select
-              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={riskFilter}
               onChange={(e) => setRiskFilter(e.target.value)}
             >
@@ -168,12 +226,28 @@ export const VendorRiskInventory: React.FC = () => {
               <option value="Medium">Medium Risk Tolerance</option>
               <option value="Low">High Risk Tolerance</option>
             </select>
+            <select
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+            >
+              <option value={10}>10 per page</option>
+              <option value={25}>25 per page</option>
+              <option value={50}>50 per page</option>
+              <option value={100}>100 per page</option>
+            </select>
           </div>
         </div>
         
-        <p className="mt-3 text-sm text-gray-600">
-          Showing {filteredData.length} of {uniqueVendors.length} unique vendors
-        </p>
+        <div className="flex justify-between items-center mt-3">
+          <p className="text-sm text-gray-600">
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredData.length)} of {filteredData.length} vendors
+            {filteredData.length !== uniqueVendors.length && ` (filtered from ${uniqueVendors.length} total)`}
+          </p>
+          <p className="text-sm text-gray-500">
+            Page {currentPage} of {totalPages}
+          </p>
+        </div>
       </div>
 
       {/* Table */}
@@ -208,7 +282,7 @@ export const VendorRiskInventory: React.FC = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredData.map((vendor) => (
+            {paginatedData.map((vendor) => (
               <tr key={vendor.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {vendor.vendor_number || 'N/A'}
@@ -241,6 +315,79 @@ export const VendorRiskInventory: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                  <span className="font-medium">{Math.min(endIndex, filteredData.length)}</span> of{' '}
+                  <span className="font-medium">{filteredData.length}</span> results
+                </p>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  
+                  {getPageNumbers().map((pageNum, index) => (
+                    <React.Fragment key={index}>
+                      {pageNum === '...' ? (
+                        <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => goToPage(pageNum as number)}
+                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                            currentPage === pageNum
+                              ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      )}
+                    </React.Fragment>
+                  ))}
+                  
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {filteredData.length === 0 && (
         <div className="p-8 text-center text-gray-500">
